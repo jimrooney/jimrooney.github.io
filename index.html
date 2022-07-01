@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="apple-mobile-web-app-status-bar" content="#aa7700" />
+    <title>Balance</title>
+    <link rel="stylesheet" type="text/css" href="CSS.css" media="all" />
+    <link rel="manifest" href="manifest.json" />
+
+    <script src="Airplanes.js"></script>
+    <script src="root.js"></script>
+    <script src="script.js"></script>
+    <script src="Station.js"></script>
+    <script src="Seat.js"></script>
+    <script src="data.js"></script>
+    <script src="Airplane.js"></script>
+    <script src="C206.js"></script>
+    <script src="C208.js"></script>
+    <script src="GA8.js"></script>
+  </head>
+  <body onload="init()">
+    <div class="Header">
+    <h1 class="vertical-container">Balance</h1>
+    <span class="vertical-container">V0.00.4</span>
+    </div>
+    <div class="Controls">
+      <button onclick="$('Container').empty()">empty container</button><br />
+      <button onclick="root.test()">Root.test</button>
+      <button class="UI" onclick="root.setPlane('MMZ')">MMZ</button>
+      <button class="UI" onclick="root.setPlane('PPR')">PPR</button>
+      <button class="UI" onclick="root.setPlane('JTK')">JTK</button>
+      <button class="UI" onclick="root.setPlane('LOR')">LOR</button>
+      <a href="mailto:Balance@jimrooney.com">Email</a>
+    </div>
+    <div id="Fuel"></div>
+    <div id="Log"></div>
+    <div id="Container" class="Container"></div>
+    <div id="Out"></div>
+  </body>
+</html>
