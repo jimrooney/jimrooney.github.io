@@ -22,7 +22,6 @@ body {
       #7087da 75%,
       #7087da
     );
-  text-shadow: 2px 2px 4px #000066;
   background-size: 3px 3px;
 
   border: 2px solid #244ee5;
@@ -31,8 +30,9 @@ body {
   height: 25px;
   font-weight: bold;
   text-align: center;
-  color: white;
+  color: #244ee5;
   font-size: 20px;
+  text-shadow: 2px 2px 4px #8583b6;
 }
 
 /* .trytopnav {
