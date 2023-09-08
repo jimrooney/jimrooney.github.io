@@ -1,15 +1,39 @@
-
 body {
-    font-family: "Helvetica", Sans-Serif;
-    background-image: url("/images/bkg.png");
-  }
-/* body {
-  color:#000000;
-  margin:0px;
-  font-size:100%;
-} 
-*/
- 
+  font-family: "Helvetica", Sans-Serif;
+  background-image: url("/images/bkg.png");
+}
+.MyHeader {
+  margin-top: 40px;
+  margin-left: 120px;
+  border-radius: 25px;
+  background: linear-gradient(
+      45deg,
+      #7087da 25%,
+      transparent 25%,
+      transparent 75%,
+      #7087da 75%,
+      #7087da
+    ),
+    linear-gradient(
+      45deg,
+      #7087da 25%,
+      transparent 25%,
+      transparent 75%,
+      #7087da 75%,
+      #7087da
+    );
+  text-shadow: 2px 2px 4px #000066;
+  background-size: 3px 3px;
+
+  border: 2px solid #244ee5;
+  padding: 20px;
+  width: 300px;
+  height: 25px;
+  font-weight: bold;
+  text-align: center;
+  color: white;
+  font-size: 20px;
+}
 
 /* .trytopnav {
   height:48px;
