@@ -1,0 +1,22 @@
+
+body {
+    font-family: "Helvetica", Sans-Serif;
+    background-image: url("/images/bkg.png");
+  }
+/* body {
+  color:#000000;
+  margin:0px;
+  font-size:100%;
+} 
+*/
+ 
+
+/* .trytopnav {
+  height:48px;
+  overflow:hidden;
+  min-width:380px;
+  position:absolute;
+  width:100%;
+  top:99px;
+  background-color:#E7E9EB;
+} */
