@@ -141,9 +141,11 @@ HTMLElement.prototype.empty = function () {
       return new ElementCollection(document)
     }
     if (typeof param === "string" || param instanceof String) {
-    //   Check if the param starts with '#' or '.'
-      if (!param.startsWith("#") && !param.startsWith(".")) {
-        return document.getElementsByTagName(param)
+
+      // Check if the param starts with '#' or '.'
+      if (param.startsWith('<')) {
+        param = param.substring(1) // Remove the leading '<' character
+        return new ElementCollection(document.querySelector(param))
       }
       return new ElementCollection(...document.querySelectorAll(param))
     } else {

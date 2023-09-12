@@ -5,7 +5,18 @@ body {
 .MyHeader {
   margin-top: 40px;
   margin-left: 120px;
+}
+.BlueBox {
+  padding: 2px;
   border-radius: 25px;
+  border: 2px solid #244ee5;
+  font-weight: bold;
+  text-align: center;
+  color: #244ee5;
+  font-size: 20px;
+  text-shadow: 2px 2px 4px #8583b6;
+}
+.BlueBox {
   background: linear-gradient(
       45deg,
       #7087da 25%,
@@ -23,16 +34,14 @@ body {
       #7087da
     );
   background-size: 3px 3px;
-
-  border: 2px solid #244ee5;
+}
+.BlueBox:hover{
+  background: rgb(102, 102, 250);
+}
+.MyBox {
   padding: 20px;
   width: 300px;
   height: 25px;
-  font-weight: bold;
-  text-align: center;
-  color: #244ee5;
-  font-size: 20px;
-  text-shadow: 2px 2px 4px #8583b6;
 }
 
 /* .trytopnav {
