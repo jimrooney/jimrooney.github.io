@@ -10,6 +10,7 @@ const textContent = `<div>
 <span class="BlueBox"><a class="active" href="index.html">Home</a></span>
 <span class="BlueBox"><a href="https://sites.google.com/a/jimrooney.com/www/flying-stuff/logbook?pli=1">Logbook</a></span>
 <span class="BlueBox"><a href="https://balance.jimrooney.com">Balance</a></span>
+<span class="BlueBox"><a href="https://docs.google.com/forms/d/e/1FAIpQLSfy9G-UZK7TJqueo8wG8pRAlS2LrGOm29I9P50ogR7B33QVdA/viewform">Yoga</a>
 </div>`
 
 body.insertAdjacentHTML("afterbegin", textContent)
