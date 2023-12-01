@@ -8,7 +8,8 @@ const body = document.querySelector("body");
 // Set the content of the div
 const textContent = `<div>
 <span class="BlueBox"><a class="active" href="index.html">Home</a></span>
-<span class="BlueBox"><a href="https://sites.google.com/a/jimrooney.com/www/flying-stuff/logbook?pli=1">Logbook</a></span>
+<span class="BlueBox"><a href="https://script.google.com/a/macros/jimrooney.com/s/AKfycbxoGRpmF6A06s8croIww3vvOPZnQbK0UG8IeQXilxSJm7TL2ZZR/exec">Logbook</a></span>
+
 <span class="BlueBox"><a href="https://balance.jimrooney.com">Balance</a></span>
 </div>`
 
