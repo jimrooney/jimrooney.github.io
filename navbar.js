@@ -18,6 +18,8 @@ const textContent = `<div>
 <span class="BlueBox"><a href="https://docs.google.com/a/jimrooney.com/forms/d/e/1FAIpQLSdbIqbJrdQxsrLDfD8bvUyBlpYLEb8DOoMI7bghqg1zx3px2g/viewform">AddFlight</a></span>
 <span class="BlueBox"><a href="https://max.jimrooney.com">MaxPerformance</a></span>
 <span class="BlueBox"><a href="https://docs.google.com/forms/d/e/1FAIpQLSfy9G-UZK7TJqueo8wG8pRAlS2LrGOm29I9P50ogR7B33QVdA/viewform">Yoga</a>
+<span class="BlueBox"><a href="https://messages.google.com/web/">TXT MSG</a>
+
 </div>`
 
 body.insertAdjacentHTML("afterbegin", textContent)
