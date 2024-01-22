@@ -10,7 +10,7 @@ const textContent = `<div>
 <span class="BlueBox"><a class="active" href="index.html">Home</a></span>
 <span class="BlueBox"><a href="https://script.google.com/a/macros/jimrooney.com/s/AKfycbxoGRpmF6A06s8croIww3vvOPZnQbK0UG8IeQXilxSJm7TL2ZZR/exec">Logbook</a></span>
 
-<span class="BlueBox"><a href="https://docs.google.com/spreadsheets/d/1Ex7pOYQouK5smuwyLsm6wTcFR5lUKz98_icXsQfbPhc/edit#gid=881358334">F&D</a></span>
+<span class="BlueBox"><a href="https://glenorchyair.sharepoint.com/:x:/r/sites/datastore/_layouts/15/Doc.aspx?sourcedoc=%7B08A8DFD1-8F9C-42B8-8417-D52B8D22AF26%7D&file=Jim%20Rooney%20-%20F%26D%202024.xlsx&action=default&mobileredirect=true">F&D</a></span>
 <span class="BlueBox"><a href="https://glenorchyair.sharepoint.com/SitePages/Daily-Ops.aspx">DailyOps</a></span>
 
 <span class="BlueBox"><a href="https://script.google.com/a/glenorchyair.co.nz/macros/s/AKfycbxyGoUvG8N-rC2KE8vB2tzJM1qxdKa8mAFDaykJwNU/dev">SST</a></span>
