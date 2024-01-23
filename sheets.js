@@ -15,7 +15,7 @@ class DataLoader {
       fetch(this.url)
         .then((res) => res.text())
         .then((rep) => {
-          console.log("reply: ", rep)
+        //   console.log("reply: ", rep)
           const jsData = JSON.parse(rep.substring(47).slice(0, -2)) // remove extra (non-JSON) formatting
           console.log("data loaded: ", jsData)
           this.data = jsData
