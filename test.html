@@ -1,0 +1,46 @@
+
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://accounts.google.com/gsi/client"></script>
+<script>
+  google.accounts.id.initialize({
+    client_id: '639970431928-3eeg0c3okmclqrnu8qsc2j81srald0lv.apps.googleusercontent.com',
+    callback: handleCredentialResponse,
+  });
+
+  function handleCredentialResponse(response) {
+    console.log("Data Loaded")
+  }
+</script>
+
+
+
+
+
+<script>
+    gapi.load('client', initClient);
+  
+    function initClient() {
+      gapi.client.init({
+        apiKey: 'AIzaSyD5hz9A4gXlQ03WaQol112gN0cZa58bYoE',
+        discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+        clientId: '639970431928-3eeg0c3okmclqrnu8qsc2j81srald0lv.apps.googleusercontent.com',
+        scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
+      }).then(function() {
+        getData()
+      });
+    }
+  </script>
+<script>
+    function getData() {
+      gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: '1ZQDN58WT5hdFVYiJA7yIJocm4vbc0Gw8ecJUj1pkYwg',
+        range: 'Links!A1:B10', // Adjust the range as per your needs
+      }).then(function(response) {
+        var values = response.result.values;
+        console.log("Data Loaded")
+        console.log(values)
+
+      });
+    }
+  </script>
+    
