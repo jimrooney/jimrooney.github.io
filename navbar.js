@@ -22,7 +22,7 @@ const textContent = `<div>
 <span class="BlueBox"><a href="https://messages.google.com/web/conversations">PhoneMessages</a></span>
 
 
-
+<span class="BlueBox"><a href="https://worldchatclock.com/?a%5B0%5D%5Bname%5D=Auckland&a%5B0%5D%5Btz%5D=Pacific%2FAuckland&a%5B0%5D%5BisHome%5D=true&a%5B1%5D%5Bname%5D=New+York+City&a%5B1%5D%5Btz%5D=America%2FNew_York&a%5B1%5D%5BisHome%5D=false&isAP=1">WorldClock</a></span>
 
 
 </div>`
