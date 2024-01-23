@@ -13,7 +13,7 @@
         const body = document.querySelector("body")
         const links = `<div></div>`
         body.insertAdjacentHTML("afterbegin", links)
-        data.rows.forEach((row) => {
+        data.rows.toReversed().forEach((row) => {
           body.insertAdjacentHTML("afterbegin", `<span class="BlueBox Nav"><a class="active" href="${row.c[1].v}">${row.c[0].v}</a></span>`)
         })
       }
