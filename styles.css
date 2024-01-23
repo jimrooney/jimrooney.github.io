@@ -6,6 +6,14 @@ body {
   margin-top: 40px;
   margin-left: 120px;
 }
+.MyBox {
+  padding: 20px;
+  width: 300px;
+  height: 25px;
+}
+.Nav {
+  margin-left: 10px;
+}
 .BlueBox {
   padding: 2px;
   border-radius: 25px;
@@ -38,11 +46,7 @@ body {
 .BlueBox:hover{
   background: rgb(102, 102, 250);
 }
-.MyBox {
-  padding: 20px;
-  width: 300px;
-  height: 25px;
-}
+
 
 /* .trytopnav {
   height:48px;
