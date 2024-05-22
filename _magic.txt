@@ -1,0 +1,3 @@
+
+sheets.js loads the data from a Google Sheets document and returns it as JSON.
+index.html loops over the data and creates links from it.

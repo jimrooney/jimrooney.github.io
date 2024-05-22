@@ -1,3 +1,6 @@
+//
+// Loads data from the jimrooney.com spreadsheet.
+// 
 class DataLoader {
     constructor(options) {
       this.sheetID = options?.sheetID || "1ZQDN58WT5hdFVYiJA7yIJocm4vbc0Gw8ecJUj1pkYwg"

@@ -5,6 +5,8 @@
       const root = {}
     </script>
     <script src="sheets.js"></script>
+
+    <!-- Navbar takes the data loaded by root (from the google spreadsheet) and loops over it making links -->
     <script>
       // Navbar
       root.onload = (data) => {
@@ -14,7 +16,13 @@
         const links = `<div></div>`
         body.insertAdjacentHTML("afterbegin", links)
         data.rows.toReversed().forEach((row) => {
-          body.insertAdjacentHTML("afterbegin", `<span class="BlueBox Nav"><a class="active" href="${row.c[1].v}">${row.c[0].v}</a></span>`)
+          const label = row.c[0].v
+          const content = row.c[1].v
+          if (label == "HTML") {
+            body.insertAdjacentHTML("afterbegin", `${content}`)
+          } else {
+            body.insertAdjacentHTML("afterbegin", `<span class="BlueBox Nav"><a class="active" href="${content}">${label}</a></span>`)
+          }
         })
       }
     </script>
