@@ -13,7 +13,7 @@
         console.log("Root loaded: ", data)
         this.data = data
         const body = document.querySelector("body")
-        const links = `<div></div>`
+        const links = `<div class="links"></div>`
         body.insertAdjacentHTML("afterbegin", links)
         data.rows.toReversed().forEach((row) => {
           const label = row.c[0].v

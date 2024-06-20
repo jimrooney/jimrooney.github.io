@@ -1,7 +1,25 @@
 body {
   font-family: "Helvetica", Sans-Serif;
-  background-image: url("/images/bkg.png");
+  background-color: #a3b5c4ab; /* Faded grey-blue color */
+  /* background-image: url("/images/bkg.png"); */
 }
+a:visited {
+  color: black;
+}
+a:link {
+  color: rgb(10, 7, 84);
+}
+.links {
+  width: 50%;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.links span {
+  margin: 10px 10px 0 0; /* Margin with vertical spacing */
+  padding: 5px 0; /* Padding to add more vertical space within each link */
+}
+
 .MyHeader {
   margin-top: 40px;
   margin-left: 120px;
@@ -16,13 +34,13 @@ body {
 }
 .BlueBox {
   padding: 2px;
-  border-radius: 25px;
-  border: 2px solid #244ee5;
+  border-radius: 5px;
+  border: 2px solid #09112e;
   font-weight: bold;
   text-align: center;
-  color: #244ee5;
+  color: #556d8a;
   font-size: 20px;
-  text-shadow: 2px 2px 4px #8583b6;
+  text-shadow: 2px 2px 4px #232330b1;
 }
 .BlueBox {
   background: linear-gradient(
@@ -30,7 +48,7 @@ body {
       #7087da 25%,
       transparent 25%,
       transparent 75%,
-      #7087da 75%,
+      #1f2746 75%,
       #7087da
     ),
     linear-gradient(
@@ -44,7 +62,7 @@ body {
   background-size: 3px 3px;
 }
 .BlueBox:hover{
-  background: rgb(102, 102, 250);
+  background: rgba(18, 18, 160, 0.757);
 }
 
 
