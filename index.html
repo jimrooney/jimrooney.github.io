@@ -4,15 +4,19 @@
     <script>
       const root = {}
     </script>
-    <script src="sheets.js"></script>
+    
+    <div id="MyHeader" class="MyHeader BlueBox" style="width: 1200px; height: 25px">Welcome to the house of Jim</div>
 
+    <script src="sheets.js"></script>
+    <P>&nbsp;</P>
+    <center><div id="LinkContainer" /></center>
     <!-- Navbar takes the data loaded by root (from the google spreadsheet) and loops over it making links -->
     <script>
       // Navbar
       root.onload = (data) => {
         console.log("Root loaded: ", data)
         this.data = data
-        const body = document.querySelector("body")
+        const body = document.querySelector("#LinkContainer")
         const links = `<div class="links"></div>`
         body.insertAdjacentHTML("afterbegin", links)
         data.rows.toReversed().forEach((row) => {
@@ -27,7 +31,7 @@
       }
     </script>
 
-    <div id="MyHeader" class="MyHeader BlueBox" style="width: 1200px; height: 25px">Welcome to the house of Jim</div>
+    
     <div class="MyHeader BlueBox MyBox"><a href="http://nexuscode.co.nz">I am the Nexus One</a></div>
   </body>
 </html>
