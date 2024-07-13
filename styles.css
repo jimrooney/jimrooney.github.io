@@ -13,12 +13,15 @@ a:link {
   width: 50%;
   display: flex;
   flex-wrap: wrap;
+  font-size: 8vw;
+  line-height: 8vh;
 }
 
 .links span {
-  margin: 10px 10px 0 0; /* Margin with vertical spacing */
-  padding: 5px 0; /* Padding to add more vertical space within each link */
+  margin: clamp(5px, 4vw, 15px) clamp(5px, 1vw, 15px) 0 0; /* Margin with vertical and horizontal spacing */
+  padding: clamp(2px, 5vw, 8px) 0; /* Padding to add more vertical space within each link */
 }
+
 
 .MyHeader {
   margin-top: 40px;
@@ -33,15 +36,19 @@ a:link {
   margin-left: 10px;
 }
 .BlueBox {
-  padding: 2px;
-  border-radius: 5px;
+  padding: clamp(0.5px, 20vw, 4px);
+  border-radius: clamp(1px, 0.5vw, 10px);
   border: 2px solid #09112e;
   font-weight: bold;
   text-align: center;
   color: #556d8a;
-  font-size: 20px;
-  text-shadow: 2px 2px 4px #232330b1;
+  font-size: clamp(16px, 8vw, 24px);
+  line-height: clamp(25px, 18vw, 50px); /* Ensuring enough line height */
+  text-shadow: clamp(1px, 0.5vw, 3px) clamp(1px, 0.5vw, 3px) clamp(2px, 1vw, 6px) #232330b1;
+  margin-bottom: clamp(10px, 10vw, 20px); /* Adding bottom margin to prevent overlap */
 }
+
+
 .BlueBox {
   background: linear-gradient(
       45deg,
