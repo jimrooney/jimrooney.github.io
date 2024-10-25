@@ -1,0 +1,38 @@
+<html>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <body>
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      const root = {}
+    </script>
+    <center>
+    <div id="MyHeader" class="MyHeader BlueBox" style="width: 50vw">Welcome to the house of Jim</div>
+
+    <script src="sheets.js"></script>
+    <P>&nbsp;</P>
+    <div id="LinkContainer" />
+    <!-- Navbar takes the data loaded by root (from the google spreadsheet) and loops over it making links -->
+    <script>
+      // Navbar
+      root.onload = (data) => {
+        console.log("Root loaded: ", data)
+        this.data = data
+        const body = document.querySelector("#LinkContainer")
+        const links = `<div class="links"></div>`
+        body.insertAdjacentHTML("afterbegin", links)
+        data.rows.toReversed().forEach((row) => {
+          const label = row.c[0].v
+          const content = row.c[1].v
+          if (label == "HTML") {
+            body.insertAdjacentHTML("afterbegin", `${content}`)
+          } else {
+            body.insertAdjacentHTML("afterbegin", `<span class="BlueBox Nav"><a class="active" href="${content}">${label}</a></span>`)
+          }
+        })
+      }
+    </script>
+
+    
+    <div class="MyHeader BlueBox MyBox" style="width: 60vw; height: 8vh"><a href="http://nexuscode.co.nz">I am the Nexus One</a></div>
+  </center></body>
+</html>
