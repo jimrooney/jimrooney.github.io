@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch Google Spreadsheet Data</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        const CLIENT_ID = '688053331913-egrlfmtobihmisptd8nm3tpqtjcg1gro'; // Your OAuth 2.0 Client ID
+        const SPREADSHEET_ID = '1NfbxXgexcFS58qiWOk-Bk5_VtzD2LrDDJoz6taJ3520'; // Your Spreadsheet ID
+
+        function handleCredentialResponse(response) {
+            console.log('Received response:', response); // Debugging log
+            const id_token = response.credential; // Get the JWT token from the response
+            getDataFromSheet(id_token);
+        }
+
+        function getDataFromSheet(token) {
+            const headers = new Headers();
+            headers.append("Authorization", "Bearer " + token);
+
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Sheet1!A1:E`, {
+                method: 'GET',
+                headers: headers
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Data fetched:', data); // Debugging log
+                const output = document.getElementById('data-container');
+                if (data.values && data.values.length > 0) {
+                    let htmlOutput = '';
+                    data.values.forEach(row => {
+                        htmlOutput += '<p>' + row.join(', ') + '</p>';
+                    });
+                    output.innerHTML = htmlOutput;
+                } else {
+                    output.innerHTML = 'No data found.';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+        }
+
+        function initGoogleSignIn() {
+            google.accounts.id.initialize({
+                client_id: CLIENT_ID,
+                callback: handleCredentialResponse
+            });
+            google.accounts.id.renderButton(
+                document.getElementById("sign-in-button"),
+                { theme: "outline", size: "large" } // Customize the button style as needed
+            );
+            google.accounts.id.prompt(); // Show the one-tap prompt
+        }
+    </script>
+</head>
+<body onload="initGoogleSignIn()">
+    <h1>Google Spreadsheet Data</h1>
+    <div id="sign-in-button"></div>
+    <div id="data-container"></div>
+</body>
+</html>
