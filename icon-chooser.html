@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Icon Chooser</title>
+    <style>
+      :root {
+        --bg: #e8edf3;
+        --panel: #ffffff;
+        --ink: #10233a;
+        --muted: #4b6078;
+        --accent: #2f6fb0;
+        --accent-2: #1f4a75;
+        --ring: #8ab4e1;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        color: var(--ink);
+        background: radial-gradient(circle at 10% 5%, #f5f9ff 0%, var(--bg) 45%, #d9e3ee 100%);
+      }
+
+      .wrap {
+        width: min(980px, 95vw);
+        margin: 24px auto;
+        display: grid;
+        gap: 14px;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid #c7d4e2;
+        border-radius: 14px;
+        padding: 14px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 1.4rem;
+      }
+
+      .muted {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .toolbar {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
+      }
+
+      input,
+      select {
+        width: 100%;
+        border: 1px solid #9db3ca;
+        border-radius: 10px;
+        padding: 9px 11px;
+        font-size: 15px;
+        background: #fff;
+      }
+
+      input:focus,
+      select:focus {
+        outline: 2px solid var(--ring);
+        border-color: var(--accent);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 10px;
+      }
+
+      .card {
+        border: 1px solid #bdd0e4;
+        border-radius: 10px;
+        background: #f7fbff;
+        padding: 10px 8px;
+        display: grid;
+        place-items: center;
+        gap: 6px;
+        min-height: 90px;
+        cursor: pointer;
+      }
+
+      .card:hover {
+        border-color: var(--accent);
+        background: #eef6ff;
+      }
+
+      .card.selected {
+        border-color: var(--accent-2);
+        background: #dfeeff;
+        box-shadow: 0 0 0 2px #bcd7f4 inset;
+      }
+
+      .card img {
+        width: 28px;
+        height: 28px;
+      }
+
+      .name {
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 120px 1fr auto;
+        gap: 8px;
+        align-items: center;
+        margin-top: 8px;
+      }
+
+      .label {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .out {
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 13px;
+        background: #f5f8fb;
+        border: 1px solid #ccdae8;
+        border-radius: 8px;
+        padding: 8px;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      button {
+        border: 1px solid #7fa7cc;
+        background: linear-gradient(180deg, #4d89c4 0%, #2f6fb0 100%);
+        color: #fff;
+        border-radius: 8px;
+        padding: 7px 10px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        filter: brightness(1.05);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="panel">
+        <h1>Icon Chooser (Iconify Sources)</h1>
+        <p class="muted">Pick an icon and copy either the ID or URL into your Google Sheet.</p>
+      </section>
+
+      <section class="panel toolbar">
+        <select id="source" aria-label="Icon source">
+          <option value="lucide">Lucide (outline)</option>
+          <option value="mdi">Material Design Icons (filled)</option>
+          <option value="heroicons-solid">Heroicons Solid (filled)</option>
+          <option value="tabler">Tabler (outline)</option>
+        </select>
+        <input id="search" type="text" placeholder="Search icons, e.g. plane, mail, clock" />
+        <button id="clearBtn" type="button">Clear</button>
+      </section>
+
+      <section id="grid" class="panel grid"></section>
+
+      <section class="panel">
+        <div class="row">
+          <div class="label">Icon ID</div>
+          <div id="idOut" class="out">lucide:plane</div>
+          <button id="copyId" type="button">Copy ID</button>
+        </div>
+        <div class="row">
+          <div class="label">Icon URL</div>
+          <div id="urlOut" class="out">https://api.iconify.design/lucide:plane.svg</div>
+          <button id="copyUrl" type="button">Copy URL</button>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const iconSets = {
+        lucide: {
+          label: "Lucide (outline)",
+          names: [
+            "plane",
+            "plane-landing",
+            "plane-takeoff",
+            "map",
+            "compass",
+            "wind",
+            "cloud-sun",
+            "sun",
+            "moon",
+            "calendar",
+            "clock-3",
+            "mail",
+            "message-square",
+            "phone",
+            "globe",
+            "camera",
+            "video",
+            "file-text",
+            "clipboard-list",
+            "book-open",
+            "building-2",
+            "home",
+            "settings",
+            "wrench",
+            "hard-drive",
+            "folder",
+            "link",
+            "shield-check",
+            "user",
+            "users"
+          ]
+        },
+        mdi: {
+          label: "Material Design Icons (filled)",
+          names: [
+            "airplane",
+            "airplane-landing",
+            "airplane-takeoff",
+            "map",
+            "compass",
+            "weather-windy",
+            "weather-partly-cloudy",
+            "calendar",
+            "clock",
+            "email",
+            "message",
+            "phone",
+            "earth",
+            "camera",
+            "file-document",
+            "clipboard-list",
+            "book-open",
+            "home",
+            "cog",
+            "wrench",
+            "folder",
+            "link-variant",
+            "shield-check",
+            "account",
+            "account-group"
+          ]
+        },
+        "heroicons-solid": {
+          label: "Heroicons Solid (filled)",
+          names: [
+            "paper-airplane",
+            "map",
+            "compass",
+            "cloud",
+            "sun",
+            "moon",
+            "calendar-days",
+            "clock",
+            "envelope",
+            "chat-bubble-left-right",
+            "phone",
+            "globe-alt",
+            "camera",
+            "document-text",
+            "clipboard-document-list",
+            "book-open",
+            "home",
+            "cog-6-tooth",
+            "wrench-screwdriver",
+            "folder",
+            "link",
+            "shield-check",
+            "user",
+            "users",
+            "briefcase"
+          ]
+        },
+        tabler: {
+          label: "Tabler (outline)",
+          names: [
+            "plane",
+            "plane-arrival",
+            "plane-departure",
+            "map",
+            "compass",
+            "wind",
+            "cloud-sun",
+            "calendar",
+            "clock",
+            "mail",
+            "message",
+            "phone",
+            "world",
+            "camera",
+            "file-text",
+            "clipboard-list",
+            "book",
+            "home",
+            "settings",
+            "tool",
+            "folder",
+            "link",
+            "shield-check",
+            "user",
+            "users"
+          ]
+        }
+      };
+
+      const grid = document.getElementById("grid");
+      const source = document.getElementById("source");
+      const search = document.getElementById("search");
+      const clearBtn = document.getElementById("clearBtn");
+      const idOut = document.getElementById("idOut");
+      const urlOut = document.getElementById("urlOut");
+      const copyId = document.getElementById("copyId");
+      const copyUrl = document.getElementById("copyUrl");
+
+      let selectedSource = "lucide";
+      let selectedName = "plane";
+
+      function iconId(prefix, name) {
+        return `${prefix}:${name}`;
+      }
+
+      function iconUrl(id) {
+        return `https://api.iconify.design/${id}.svg`;
+      }
+
+      function selectedId() {
+        return iconId(selectedSource, selectedName);
+      }
+
+      function setSelection(prefix, name) {
+        selectedSource = prefix;
+        selectedName = name;
+        source.value = prefix;
+        idOut.textContent = selectedId();
+        urlOut.textContent = iconUrl(selectedId());
+      }
+
+      function render(filterText = "") {
+        const q = filterText.trim().toLowerCase();
+        const names = iconSets[selectedSource].names;
+        const list = names.filter((n) => n.includes(q));
+        grid.innerHTML = "";
+        list.forEach((name) => {
+          const id = iconId(selectedSource, name);
+          const card = document.createElement("button");
+          card.type = "button";
+          card.className = `card${name === selectedName ? " selected" : ""}`;
+          card.innerHTML = `<img src="${iconUrl(id)}" alt="${name}" /><div class="name">${name}</div>`;
+          card.addEventListener("click", () => {
+            setSelection(selectedSource, name);
+            render(search.value);
+          });
+          grid.appendChild(card);
+        });
+      }
+
+      async function copyText(text, el, doneText) {
+        const original = el.textContent;
+        try {
+          await navigator.clipboard.writeText(text);
+          el.textContent = doneText;
+          setTimeout(() => (el.textContent = original), 900);
+        } catch (_) {
+          alert("Clipboard copy failed. You can still manually copy from the field.");
+        }
+      }
+
+      source.addEventListener("change", (e) => {
+        selectedSource = e.target.value;
+        selectedName = iconSets[selectedSource].names[0];
+        setSelection(selectedSource, selectedName);
+        render(search.value);
+      });
+      search.addEventListener("input", (e) => render(e.target.value));
+      clearBtn.addEventListener("click", () => {
+        search.value = "";
+        render("");
+      });
+      copyId.addEventListener("click", () => copyText(selectedId(), copyId, "Copied"));
+      copyUrl.addEventListener("click", () => copyText(iconUrl(selectedId()), copyUrl, "Copied"));
+
+      setSelection(selectedSource, selectedName);
+      render();
+    </script>
+  </body>
+</html>

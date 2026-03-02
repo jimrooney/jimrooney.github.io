@@ -22,13 +22,41 @@
         const body = document.querySelector("#LinkContainer")
         const links = `<div class="links"></div>`
         body.insertAdjacentHTML("afterbegin", links)
+
+        const esc = (value) =>
+          String(value ?? "").replace(/[&<>"']/g, (char) => {
+            const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }
+            return map[char]
+          })
+
+        const iconMarkupFor = (iconValue, label) => {
+          const icon = String(iconValue ?? "").trim()
+          if (!icon) return ""
+          const src = icon.includes(":")
+            ? `https://api.iconify.design/${encodeURIComponent(icon)}.svg`
+            : icon
+          return `<span class="icon-wrap" style="display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;"><img class="nav-icon" src="${esc(src)}" alt="" style="width:clamp(18px,6vw,32px);height:clamp(18px,6vw,32px);display:block;" /><span class="icon-label" style="font-size:10px;line-height:1;display:block;">${esc(label)}</span></span>`
+        }
+
         data.rows.toReversed().forEach((row) => {
-          const label = row.c[0].v
-          const content = row.c[1].v
+          const label = row.c[0]?.v
+          const content = row.c[1]?.v
+          const icon = row.c[2]?.v
+          if (!label || !content) return
           if (label == "HTML") {
             body.insertAdjacentHTML("afterbegin", `${content}`)
           } else {
-            body.insertAdjacentHTML("afterbegin", `<span class="BlueBox Nav"><a class="active" href="${content}">${label}</a></span>`)
+            const iconMarkup = iconMarkupFor(icon, label)
+            const hasIcon = iconMarkup.length > 0
+            const anchorClass = hasIcon ? "active BlueBox icon-only" : "active BlueBox"
+            const anchorStyle = hasIcon
+              ? `display:inline-flex;align-items:center;justify-content:center;min-width:clamp(40px,8vw,58px);padding:4px 5px;line-height:1;text-shadow:none;text-decoration:none;white-space:nowrap;`
+              : ""
+            const anchorText = hasIcon ? iconMarkup : esc(label)
+            body.insertAdjacentHTML(
+              "afterbegin",
+              `<span class="Nav"><a class="${anchorClass}" style="${anchorStyle}" href="${esc(content)}" title="${esc(label)}" aria-label="${esc(label)}">${anchorText}</a></span>`
+            )
           }
         })
       }

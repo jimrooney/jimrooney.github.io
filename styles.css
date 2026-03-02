@@ -19,7 +19,43 @@ a:link {
 
 .links span {
   margin: clamp(5px, 4vw, 15px) clamp(5px, 1vw, 15px) 0 0; /* Margin with vertical and horizontal spacing */
-  padding: clamp(2px, 5vw, 8px) 0; /* Padding to add more vertical space within each link */
+}
+
+.links a.BlueBox {
+  display: inline-block;
+  padding: clamp(2px, 5vw, 8px) 0; /* Keep full visual button area on the clickable anchor */
+}
+
+.links a.BlueBox.icon-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: clamp(28px, 10vw, 64px);
+  line-height: 1.1;
+  font-size: 50%;
+  text-shadow: none;
+  padding: clamp(3px, 1.5vw, 8px) clamp(4px, 2vw, 10px);
+}
+
+.links .icon-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.links .nav-icon {
+  width: clamp(18px, 6vw, 32px);
+  height: clamp(18px, 6vw, 32px);
+  display: block;
+}
+
+.links .icon-label {
+  font-size: clamp(9px, 2.1vw, 11px);
+  line-height: 1;
+  color: #0d1740;
+  letter-spacing: 0.2px;
 }
 
 
@@ -50,23 +86,7 @@ a:link {
 
 
 .BlueBox {
-  background: linear-gradient(
-      45deg,
-      #7087da 25%,
-      transparent 25%,
-      transparent 75%,
-      #1f2746 75%,
-      #7087da
-    ),
-    linear-gradient(
-      45deg,
-      #7087da 25%,
-      transparent 25%,
-      transparent 75%,
-      #7087da 75%,
-      #7087da
-    );
-  background-size: 3px 3px;
+  background: #9cb9e6;
 }
 .BlueBox:hover{
   background: rgba(18, 18, 160, 0.757);
