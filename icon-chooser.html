@@ -62,6 +62,18 @@
         gap: 10px;
       }
 
+      .toolbar-live {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .status {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
       input,
       select {
         width: 100%;
@@ -189,6 +201,10 @@
           value="airplane,email,clock,calendar,home,map,compass,phone,camera,user,users"
           placeholder="Comma-separated icon names"
         />
+      </section>
+      <section class="panel toolbar-live">
+        <label><input id="fullSet" type="checkbox" checked /> Use full icon library for selected source</label>
+        <div id="status" class="status"></div>
       </section>
 
       <section id="grid" class="panel grid"></section>
@@ -519,6 +535,8 @@
       const customRow = document.getElementById("customRow");
       const customPrefix = document.getElementById("customPrefix");
       const customNames = document.getElementById("customNames");
+      const fullSet = document.getElementById("fullSet");
+      const status = document.getElementById("status");
       const search = document.getElementById("search");
       const clearBtn = document.getElementById("clearBtn");
       const idOut = document.getElementById("idOut");
@@ -528,6 +546,9 @@
 
       let selectedSource = "lucide";
       let selectedName = "plane";
+      let renderToken = 0;
+      const maxCards = 120;
+      const collectionCache = new Map();
 
       function iconId(prefix, name) {
         return `${prefix}:${name}`;
@@ -555,6 +576,29 @@
         return iconSets[selectedSource].names;
       }
 
+      async function loadCollectionNames(prefix) {
+        if (collectionCache.has(prefix)) return collectionCache.get(prefix);
+        try {
+          const res = await fetch(`https://api.iconify.design/collection?prefix=${encodeURIComponent(prefix)}`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          const names = [];
+          Object.values(data).forEach((value) => {
+            if (Array.isArray(value)) {
+              value.forEach((name) => {
+                if (typeof name === "string") names.push(name);
+              });
+            }
+          });
+          const unique = Array.from(new Set(names));
+          collectionCache.set(prefix, unique);
+          return unique;
+        } catch (_) {
+          collectionCache.set(prefix, []);
+          return [];
+        }
+      }
+
       function selectedId() {
         return iconId(currentPrefix(), selectedName);
       }
@@ -566,9 +610,24 @@
         urlOut.textContent = iconUrl(selectedId());
       }
 
-      function render(filterText = "") {
+      async function render(filterText = "") {
+        const token = ++renderToken;
         const q = filterText.trim().toLowerCase();
-        const names = currentNames();
+        const prefix = currentPrefix();
+        let names = currentNames();
+        if (fullSet.checked) {
+          status.textContent = `Loading ${prefix} library...`;
+          const fullNames = await loadCollectionNames(prefix);
+          if (token !== renderToken) return;
+          if (fullNames.length) {
+            names = fullNames;
+            status.textContent = `${prefix}: ${fullNames.length} icons`;
+          } else {
+            status.textContent = `Could not load full ${prefix} library. Using curated list.`;
+          }
+        } else {
+          status.textContent = `Using curated list (${names.length} icons).`;
+        }
         if (!names.length) {
           grid.innerHTML = "<div class='name'>No icons for this source/list yet.</div>";
           return;
@@ -576,11 +635,14 @@
         if (!names.includes(selectedName)) {
           selectedName = names[0];
         }
-        const list = names.filter((n) => n.includes(q));
-        const prefix = currentPrefix();
+        const list = names.filter((n) => n.includes(q)).slice(0, maxCards);
         grid.innerHTML = "";
         idOut.textContent = selectedId();
         urlOut.textContent = iconUrl(selectedId());
+        if (!list.length) {
+          grid.innerHTML = "<div class='name'>No matches. Try a different search term.</div>";
+          return;
+        }
         list.forEach((name) => {
           const id = iconId(prefix, name);
           const card = document.createElement("button");
@@ -613,11 +675,15 @@
         setSelection(selectedName);
         render(search.value);
       });
-      customPrefix.addEventListener("input", () => render(search.value));
+      customPrefix.addEventListener("input", () => {
+        collectionCache.delete(currentPrefix());
+        render(search.value);
+      });
       customNames.addEventListener("input", () => {
         selectedName = currentNames()[0] || "";
         render(search.value);
       });
+      fullSet.addEventListener("change", () => render(search.value));
       search.addEventListener("input", (e) => render(e.target.value));
       clearBtn.addEventListener("click", () => {
         search.value = "";
