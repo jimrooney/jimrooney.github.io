@@ -29,6 +29,12 @@
 - Added long-press activation on link tiles (works with touch and mouse hold).
 - Added click-off behavior to exit edit mode when clicking outside buttons/controls/modal.
 
+### HUD Visual Pass
+- Applied a futuristic HUD-style theme refresh with neon cyan accents, darker glass panels, and techno typography.
+- Added layered radial ring/glow background treatment across the page.
+- Added header-specific image background support using `images/hud-title-bg.png`.
+- Tuned the global ring treatment back to the flatter version while keeping the new HUD palette and component styling.
+
 ## 2026-03-03
 
 ### Navbar Link Click Area Fix

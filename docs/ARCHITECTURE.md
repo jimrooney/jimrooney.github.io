@@ -62,6 +62,6 @@
 
 ## Visual Direction
 - Current homepage styling uses the Option A aviation ops-deck direction:
-  - dark gradient background
-  - elevated light header panel
-  - high-contrast rounded action tiles
+  - dark HUD-style gradient and ring overlays
+  - elevated header panel with optional image background (`images/hud-title-bg.png`)
+  - cyan glow accents and high-contrast rounded action tiles

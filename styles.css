@@ -1,20 +1,56 @@
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Rajdhani:wght@500;600;700&display=swap");
+
 :root {
-  --bg-top: #0b1a2d;
-  --bg-bottom: #133456;
-  --panel: #d6e5f9;
-  --panel-2: #b6d0ef;
-  --ink: #10243f;
-  --ink-soft: #35577c;
-  --line: #6f95c5;
-  --tile-line: #27486e;
-  --tile-hover: #d1e2f7;
+  --bg-top: #020a1a;
+  --bg-bottom: #061b3f;
+  --panel: rgba(8, 28, 63, 0.78);
+  --panel-2: rgba(6, 21, 47, 0.86);
+  --ink: #d9f3ff;
+  --ink-soft: #8dbddf;
+  --line: #3a8fd6;
+  --tile-line: #45c4ff;
+  --tile-hover: #123f75;
+  --glow: #37deff;
+  --glow-soft: rgba(55, 222, 255, 0.24);
 }
 
 body {
   margin: 0;
-  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
-  background: linear-gradient(135deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+  font-family: "Rajdhani", "Segoe UI", Tahoma, Arial, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 16% 12%, rgba(40, 167, 255, 0.4) 0%, rgba(40, 167, 255, 0.06) 20%, transparent 42%),
+    radial-gradient(circle at 28% 30%, rgba(0, 248, 255, 0.22) 0%, rgba(0, 248, 255, 0.08) 14%, transparent 40%),
+    linear-gradient(135deg, var(--bg-top) 0%, #031125 40%, var(--bg-bottom) 100%);
   min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-radial-gradient(circle at 16% 12%, rgba(53, 152, 228, 0.32) 0 2px, transparent 2px 23px),
+    radial-gradient(circle at 16% 12%, transparent 20%, rgba(47, 154, 233, 0.23) 20.6%, transparent 22%),
+    radial-gradient(circle at 16% 12%, transparent 33%, rgba(30, 118, 195, 0.25) 33.6%, transparent 35%),
+    linear-gradient(90deg, rgba(68, 168, 246, 0.08) 0%, transparent 36%, transparent 100%);
+  mix-blend-mode: screen;
+  opacity: 0.82;
+  z-index: -2;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, rgba(6, 18, 36, 0) 0%, rgba(6, 18, 36, 0.12) 58%, rgba(1, 6, 16, 0.75) 100%),
+    linear-gradient(to bottom, rgba(5, 17, 37, 0) 0%, rgba(2, 9, 24, 0.75) 100%);
+  z-index: -1;
 }
 
 center {
@@ -26,31 +62,51 @@ center {
 
 a:visited,
 a:link {
-  color: var(--ink);
+  color: #b4e9ff;
 }
 
 .MyHeader {
   width: min(1400px, 94vw);
   margin: 0 auto 18px;
-  border-radius: 24px;
-  border: 1px solid #c7d8ee;
-  background: linear-gradient(180deg, #e5f0ff 0%, #cfdef3 100%);
-  box-shadow: 0 8px 18px rgba(5, 16, 29, 0.34);
+  border-radius: 18px;
+  border: 1px solid rgba(75, 196, 255, 0.62);
+  background:
+    linear-gradient(180deg, rgba(7, 28, 62, 0.7) 0%, rgba(3, 17, 40, 0.8) 100%),
+    url("images/hud-title-bg.png");
+  background-position: center 32%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  box-shadow:
+    0 0 0 1px rgba(24, 138, 206, 0.45) inset,
+    0 0 24px rgba(14, 133, 204, 0.38);
   text-align: left;
   padding: 20px 28px 16px;
+  backdrop-filter: blur(3px);
+  position: relative;
+  overflow: hidden;
 }
 
 .header-title {
-  color: var(--ink);
+  color: #dbf5ff;
+  font-family: "Orbitron", "Rajdhani", "Segoe UI", sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   font-size: clamp(32px, 5vw, 58px);
   line-height: 1.04;
-  font-weight: 700;
+  font-weight: 800;
+  text-shadow: 0 0 14px rgba(54, 207, 255, 0.45);
+  position: relative;
+  z-index: 1;
 }
 
 .header-subtitle {
-  color: var(--ink-soft);
+  color: #9cc9e9;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   font-size: clamp(15px, 2vw, 24px);
   margin-top: 6px;
+  position: relative;
+  z-index: 1;
 }
 
 #LinkContainer {
@@ -61,26 +117,34 @@ a:link {
 }
 
 .links-section {
-  border-radius: 28px;
-  border: 2px solid var(--line);
-  background: rgba(21, 52, 86, 0.45);
+  border-radius: 18px;
+  border: 1px solid rgba(72, 183, 241, 0.72);
+  background:
+    linear-gradient(180deg, rgba(10, 37, 77, 0.72) 0%, rgba(7, 24, 50, 0.82) 100%);
   padding: 20px 18px;
+  box-shadow:
+    0 0 0 1px rgba(66, 165, 223, 0.3) inset,
+    0 0 22px rgba(12, 119, 193, 0.24);
+  backdrop-filter: blur(2px);
 }
 
 .section-title {
   display: block;
   margin: 0 0 12px;
-  width: min(96%, 1200px);
-  padding: 3px 10px;
-  border: 1px solid #557eae;
-  border-radius: 10px;
-  background: linear-gradient(180deg, #9ec1e6 0%, #7ea9d6 100%);
-  color: #0b2541;
-  font-size: 11px;
+  width: min(98%, 1240px);
+  padding: 4px 10px;
+  border: 1px solid #5ad3ff;
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(27, 110, 176, 0.8) 0%, rgba(15, 70, 129, 0.75) 100%);
+  color: #dff7ff;
+  font-size: 12px;
+  font-family: "Orbitron", "Rajdhani", sans-serif;
   font-weight: 700;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   text-align: center;
+  text-shadow: 0 0 10px rgba(49, 210, 255, 0.44);
+  box-shadow: 0 0 16px rgba(47, 187, 239, 0.3);
 }
 
 .links {
@@ -97,23 +161,31 @@ a:link {
 .links a.BlueBox {
   display: inline-block;
   padding: 14px 20px;
-  border-radius: 18px;
-  border: 2px solid var(--tile-line);
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
-  color: var(--ink);
+  border-radius: 14px;
+  border: 1px solid rgba(69, 196, 255, 0.9);
+  background:
+    linear-gradient(180deg, rgba(20, 78, 135, 0.72) 0%, rgba(9, 45, 93, 0.86) 100%);
+  color: #e3f8ff;
+  font-family: "Orbitron", "Rajdhani", sans-serif;
+  letter-spacing: 0.04em;
   font-size: clamp(20px, 2.8vw, 42px);
   font-weight: 700;
   line-height: 1.08;
   text-align: center;
   text-decoration: none;
   min-width: clamp(130px, 14vw, 230px);
-  box-shadow: 0 4px 12px rgba(5, 16, 29, 0.32);
-  transition: transform 120ms ease, background 120ms ease;
+  box-shadow:
+    0 0 0 1px rgba(59, 180, 244, 0.32) inset,
+    0 0 12px var(--glow-soft);
+  transition: transform 120ms ease, background 120ms ease, box-shadow 120ms ease;
 }
 
 .links a.BlueBox:hover {
-  background: var(--tile-hover);
+  background: linear-gradient(180deg, rgba(29, 108, 183, 0.8) 0%, rgba(17, 65, 122, 0.9) 100%);
   transform: translateY(-1px);
+  box-shadow:
+    0 0 0 1px rgba(98, 220, 255, 0.48) inset,
+    0 0 18px rgba(49, 193, 255, 0.45);
 }
 
 .links a.BlueBox.icon-only {
@@ -141,7 +213,7 @@ a:link {
 .links .icon-label {
   font-size: clamp(9px, 2.1vw, 11px);
   line-height: 1;
-  color: #0d1740;
+  color: #cef4ff;
   letter-spacing: 0.2px;
 }
 
@@ -156,26 +228,31 @@ a:link {
 }
 
 .editor-btn {
-  border: 2px solid var(--tile-line);
-  background: linear-gradient(180deg, #dceafe 0%, #c2daf6 100%);
-  color: var(--ink);
-  border-radius: 14px;
+  border: 1px solid rgba(85, 207, 255, 0.8);
+  background: linear-gradient(180deg, rgba(31, 103, 165, 0.9) 0%, rgba(12, 54, 102, 0.9) 100%);
+  color: #dff8ff;
+  border-radius: 10px;
   padding: 9px 15px;
   font-size: 16px;
+  font-family: "Orbitron", "Rajdhani", sans-serif;
+  letter-spacing: 0.04em;
   font-weight: 600;
+  text-transform: uppercase;
+  box-shadow: 0 0 14px rgba(44, 172, 231, 0.26);
 }
 
 .editor-btn:hover {
-  background: #cde1fa;
+  background: linear-gradient(180deg, rgba(45, 133, 202, 0.96) 0%, rgba(18, 79, 145, 0.96) 100%);
 }
 
 .editor-status {
   font-size: 18px;
-  color: #dbe9fa;
+  color: #9fd8f6;
 }
 
 .edit-mode .links a.BlueBox {
-  outline: 3px dashed #87b3de;
+  outline: 2px dashed rgba(125, 229, 255, 0.78);
+  outline-offset: 2px;
   cursor: pointer;
 }
 
@@ -198,17 +275,19 @@ a:link {
   width: min(980px, 95vw);
   max-height: 88vh;
   overflow: auto;
-  background: #eef5ff;
-  border: 2px solid #4f79a6;
+  background: linear-gradient(180deg, rgba(10, 39, 76, 0.96) 0%, rgba(5, 23, 48, 0.98) 100%);
+  border: 1px solid #49b4ea;
   border-radius: 16px;
   padding: 14px;
   text-align: left;
+  color: #d9f4ff;
+  box-shadow: 0 0 30px rgba(34, 161, 223, 0.28);
 }
 
 .icon-modal-sub {
   margin: 0 0 10px;
   font-size: 14px;
-  color: #3c5673;
+  color: #a2d8f5;
 }
 
 .icon-search-row {
@@ -220,16 +299,17 @@ a:link {
 
 .icon-search-row input,
 .icon-search-row select {
-  border: 2px solid #7da0c5;
+  border: 1px solid #5ab9e9;
   border-radius: 10px;
   padding: 8px 10px;
   font-size: 14px;
-  background: #fff;
+  background: rgba(3, 18, 40, 0.9);
+  color: #dff7ff;
 }
 
 .icon-search-status {
   font-size: 12px;
-  color: #39597a;
+  color: #97cfee;
 }
 
 .icon-choices {
@@ -241,17 +321,17 @@ a:link {
 .icon-empty {
   grid-column: 1 / -1;
   padding: 10px;
-  border: 1px dashed #90a9c3;
+  border: 1px dashed #4c9dcb;
   border-radius: 8px;
-  color: #365779;
-  background: #edf5ff;
+  color: #9ad6f4;
+  background: rgba(9, 43, 80, 0.6);
   font-size: 13px;
 }
 
 .icon-choice {
-  border: 1px solid #7da0c5;
+  border: 1px solid #5dbde9;
   border-radius: 8px;
-  background: #e4f0ff;
+  background: linear-gradient(180deg, rgba(25, 90, 150, 0.72) 0%, rgba(9, 47, 92, 0.84) 100%);
   padding: 6px;
   display: flex;
   flex-direction: column;
@@ -266,7 +346,7 @@ a:link {
 
 .icon-choice span {
   font-size: 10px;
-  color: #12345a;
+  color: #d5f4ff;
   text-align: center;
 }
 
@@ -281,7 +361,7 @@ a:link {
 .icon-chooser-link {
   margin-right: auto;
   font-size: 13px;
-  color: #1f4975;
+  color: #95d7ff;
   text-decoration: underline;
 }
 
@@ -306,8 +386,8 @@ a:link {
   right: -9px;
   width: 4px;
   border-radius: 999px;
-  background: #98bde6;
-  box-shadow: 0 0 0 1px #3f6e9e;
+  background: #84f2ff;
+  box-shadow: 0 0 0 1px #2d87c5, 0 0 10px rgba(82, 230, 255, 0.8);
 }
 
 .delete-link-btn {
@@ -318,9 +398,9 @@ a:link {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 1px solid #203b5d;
-  background: #e5eefb;
-  color: #10233a;
+  border: 1px solid #44bdf4;
+  background: #11386a;
+  color: #e4f8ff;
   font-size: 14px;
   line-height: 18px;
   text-align: center;
@@ -329,8 +409,8 @@ a:link {
 }
 
 .delete-link-btn:hover {
-  background: #f9d8d8;
-  color: #7d1111;
+  background: #4d1228;
+  color: #ffd8d8;
 }
 
 .edit-mode .delete-link-btn {
