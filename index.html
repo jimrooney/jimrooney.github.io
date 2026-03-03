@@ -223,11 +223,53 @@
       let iconSearchTimer = null
       let iconSearchToken = 0
       let selectedIconSet = "mdi"
+      let draggedNav = null
+      let dropTargetNav = null
+      let suppressEditClickUntil = 0
+      let longPressTimer = null
+      let longPressStartX = 0
+      let longPressStartY = 0
+      const LONG_PRESS_MS = 550
+      const LONG_PRESS_MOVE_THRESHOLD = 12
 
       editorConfigBtn.hidden = !editorState.enabled
 
       const setStatus = (text) => {
         statusEl.textContent = text
+      }
+
+      const reloadLinksFromSheet = () => {
+        if (typeof myDataLoader?.load === "function") {
+          myDataLoader.load()
+        }
+      }
+
+      const ensureEditorApiConfigured = () => {
+        if (editorState.endpoint && editorState.token) return true
+        configureEditorApi()
+        return Boolean(editorState.endpoint && editorState.token)
+      }
+
+      const setDraggableState = () => {
+        linksRoot.querySelectorAll(".Nav").forEach((item) => {
+          item.draggable = editorState.enabled
+        })
+        linksRoot.querySelectorAll("a.BlueBox").forEach((anchor) => {
+          anchor.draggable = false
+        })
+      }
+
+      const setEditMode = (enabled) => {
+        editorState.enabled = Boolean(enabled)
+        document.body.classList.toggle("edit-mode", editorState.enabled)
+        editModeToggle.textContent = editorState.enabled ? "Edit Mode: On" : "Edit Mode: Off"
+        editorConfigBtn.hidden = !editorState.enabled
+        setDraggableState()
+      }
+
+      const clearLongPressTimer = () => {
+        if (longPressTimer) clearTimeout(longPressTimer)
+        longPressTimer = null
       }
 
       const configureEditorApi = () => {
@@ -259,12 +301,9 @@
       }
 
       const saveIconToSheet = async (anchor, icon) => {
-        if (!editorState.endpoint || !editorState.token) {
-          configureEditorApi()
-          if (!editorState.endpoint || !editorState.token) {
-            setStatus("Save cancelled. API not configured.")
-            return
-          }
+        if (!ensureEditorApiConfigured()) {
+          setStatus("Save cancelled. API not configured.")
+          return
         }
 
         const row = Number(anchor.dataset.sheetRow)
@@ -295,12 +334,9 @@
       }
 
       const deleteLinkRow = async (anchor) => {
-        if (!editorState.endpoint || !editorState.token) {
-          configureEditorApi()
-          if (!editorState.endpoint || !editorState.token) {
-            setStatus("Delete cancelled. API not configured.")
-            return
-          }
+        if (!ensureEditorApiConfigured()) {
+          setStatus("Delete cancelled. API not configured.")
+          return
         }
 
         const row = Number(anchor.dataset.sheetRow)
@@ -328,8 +364,43 @@
           const item = anchor.closest(".Nav")
           if (item) item.remove()
           setStatus("Link deleted from Google Sheet.")
+          reloadLinksFromSheet()
         } catch (error) {
           setStatus(`Delete failed: ${error.message}`)
+        }
+      }
+
+      const moveLinkRow = async (fromRow, targetRow) => {
+        if (!ensureEditorApiConfigured()) {
+          setStatus("Reorder cancelled. API not configured.")
+          return
+        }
+
+        if (!fromRow || !targetRow || fromRow === targetRow || fromRow + 1 === targetRow) return
+
+        const payload = {
+          action: "move_row",
+          token: editorState.token,
+          sheet: editorState.sheetName,
+          row: fromRow,
+          targetRow: targetRow
+        }
+
+        setStatus("Reordering links...")
+        try {
+          const response = await fetch(editorState.endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(payload)
+          })
+          const data = await response.json()
+          if (!response.ok || !data.ok) {
+            throw new Error(data.error || `HTTP ${response.status}`)
+          }
+          setStatus("Link order updated.")
+          reloadLinksFromSheet()
+        } catch (error) {
+          setStatus(`Reorder failed: ${error.message}`)
         }
       }
 
@@ -472,13 +543,11 @@
             section.remove()
           }
         })
+        setDraggableState()
       }
 
       editModeToggle.addEventListener("click", () => {
-        editorState.enabled = !editorState.enabled
-        document.body.classList.toggle("edit-mode", editorState.enabled)
-        editModeToggle.textContent = editorState.enabled ? "Edit Mode: On" : "Edit Mode: Off"
-        editorConfigBtn.hidden = !editorState.enabled
+        setEditMode(!editorState.enabled)
       })
 
       editorConfigBtn.addEventListener("click", configureEditorApi)
@@ -511,6 +580,11 @@
       })
 
       linksRoot.addEventListener("click", (event) => {
+        if (editorState.enabled && Date.now() < suppressEditClickUntil) {
+          event.preventDefault()
+          return
+        }
+
         const deleteBtn = event.target.closest(".delete-link-btn")
         if (deleteBtn && editorState.enabled) {
           event.preventDefault()
@@ -527,8 +601,104 @@
         openModal(anchor)
       })
 
+      linksRoot.addEventListener("pointerdown", (event) => {
+        if (editorState.enabled) return
+        const anchor = event.target.closest("a.BlueBox")
+        if (!anchor) return
+        if (event.pointerType === "mouse" && event.button !== 0) return
+        longPressStartX = event.clientX
+        longPressStartY = event.clientY
+        clearLongPressTimer()
+        longPressTimer = setTimeout(() => {
+          setEditMode(true)
+          suppressEditClickUntil = Date.now() + 550
+        }, LONG_PRESS_MS)
+      })
+
+      linksRoot.addEventListener("pointermove", (event) => {
+        if (!longPressTimer) return
+        const movedX = Math.abs(event.clientX - longPressStartX)
+        const movedY = Math.abs(event.clientY - longPressStartY)
+        if (movedX > LONG_PRESS_MOVE_THRESHOLD || movedY > LONG_PRESS_MOVE_THRESHOLD) {
+          clearLongPressTimer()
+        }
+      })
+
+      const cancelLongPress = () => {
+        clearLongPressTimer()
+      }
+      linksRoot.addEventListener("pointerup", cancelLongPress)
+      linksRoot.addEventListener("pointercancel", cancelLongPress)
+      linksRoot.addEventListener("pointerleave", cancelLongPress)
+
+      linksRoot.addEventListener("dragstart", (event) => {
+        if (!editorState.enabled) return
+        const item = event.target.closest(".Nav")
+        if (!item) return
+        draggedNav = item
+        item.classList.add("dragging")
+        if (event.dataTransfer) {
+          event.dataTransfer.effectAllowed = "move"
+          event.dataTransfer.setData("text/plain", item.querySelector("a.BlueBox")?.dataset.sheetRow || "")
+        }
+      })
+
+      linksRoot.addEventListener("dragover", (event) => {
+        if (!editorState.enabled || !draggedNav) return
+        const item = event.target.closest(".Nav")
+        if (!item || item === draggedNav) return
+        event.preventDefault()
+        if (dropTargetNav && dropTargetNav !== item) {
+          dropTargetNav.classList.remove("drop-target")
+        }
+        dropTargetNav = item
+        item.classList.add("drop-target")
+        if (event.dataTransfer) {
+          event.dataTransfer.dropEffect = "move"
+        }
+      })
+
+      linksRoot.addEventListener("drop", (event) => {
+        if (!editorState.enabled || !draggedNav) return
+        event.preventDefault()
+        const target = event.target.closest(".Nav") || dropTargetNav
+        if (!target || target === draggedNav) return
+        const draggedAnchor = draggedNav.querySelector("a.BlueBox")
+        const nextNav = target.nextElementSibling
+        const targetAnchor = nextNav?.matches(".Nav")
+          ? nextNav.querySelector("a.BlueBox")
+          : target.querySelector("a.BlueBox")
+        const fromRow = Number(draggedAnchor?.dataset.sheetRow || 0)
+        const targetRow = Number(targetAnchor?.dataset.sheetRow || 0)
+        suppressEditClickUntil = Date.now() + 350
+        moveLinkRow(fromRow, targetRow)
+      })
+
+      linksRoot.addEventListener("dragend", () => {
+        if (draggedNav) {
+          draggedNav.classList.remove("dragging")
+        }
+        if (dropTargetNav) {
+          dropTargetNav.classList.remove("drop-target")
+        }
+        draggedNav = null
+        dropTargetNav = null
+      })
+
       iconModal.addEventListener("click", (event) => {
         if (event.target === iconModal) closeModal()
+      })
+
+      document.addEventListener("click", (event) => {
+        if (!editorState.enabled) return
+        if (Date.now() < suppressEditClickUntil) return
+        const target = event.target
+        if (!(target instanceof Element)) return
+        if (target.closest("a.BlueBox")) return
+        if (target.closest(".delete-link-btn")) return
+        if (target.closest(".editor-bar")) return
+        if (target.closest(".icon-modal")) return
+        setEditMode(false)
       })
     </script>
   </center></body>

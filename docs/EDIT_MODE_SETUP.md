@@ -31,6 +31,20 @@ The frontend posts JSON as a plain text body (`Content-Type: text/plain`) to avo
 }
 ```
 
+- For drag/drop reorder, payload is:
+
+```json
+{
+  "action": "move_row",
+  "token": "your-shared-token",
+  "sheet": "Links",
+  "row": 12,
+  "targetRow": 20
+}
+```
+
+- `move_row` moves `row` so it lands immediately before `targetRow`.
+
 ## Apps Script `Code.gs`
 
 Use this in your script project attached to the spreadsheet:
@@ -74,6 +88,20 @@ function doPost(e) {
       return jsonResponse({ ok: true, action: action, row: row });
     }
 
+    if (action === "move_row") {
+      const targetRow = Number(body.targetRow);
+      if (!targetRow || targetRow < 1) {
+        return jsonResponse({ ok: false, error: "Invalid targetRow" });
+      }
+      if (row > sheet.getLastRow() || targetRow > sheet.getLastRow()) {
+        return jsonResponse({ ok: false, error: "Row out of range" });
+      }
+      if (row !== targetRow && row + 1 !== targetRow) {
+        moveRowBefore(sheet, row, targetRow);
+      }
+      return jsonResponse({ ok: true, action: action, row: row, targetRow: targetRow });
+    }
+
     if (action === "set_icon") {
       // Column C = icon
       sheet.getRange(row, 3).setValue(icon);
@@ -89,6 +117,15 @@ function doPost(e) {
 function jsonResponse(payload) {
   return ContentService.createTextOutput(JSON.stringify(payload))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function moveRowBefore(sheet, fromRow, targetRow) {
+  const numCols = sheet.getLastColumn();
+  const rowValues = sheet.getRange(fromRow, 1, 1, numCols).getValues();
+  sheet.deleteRow(fromRow);
+  const insertAt = fromRow < targetRow ? targetRow - 1 : targetRow;
+  sheet.insertRowsBefore(insertAt, 1);
+  sheet.getRange(insertAt, 1, 1, numCols).setValues(rowValues);
 }
 ```
 
@@ -114,3 +151,4 @@ function jsonResponse(payload) {
 - Edit mode now supports:
   - setting/clearing column C icon values
   - deleting entire link rows from the sheet
+  - drag/drop row reorder (requires `move_row` action in Apps Script)

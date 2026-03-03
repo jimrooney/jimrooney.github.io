@@ -290,6 +290,26 @@ a:link {
   display: inline-block;
 }
 
+.edit-mode .Nav {
+  cursor: grab;
+}
+
+.edit-mode .Nav.dragging {
+  opacity: 0.55;
+}
+
+.edit-mode .Nav.drop-target::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  right: -9px;
+  width: 4px;
+  border-radius: 999px;
+  background: #98bde6;
+  box-shadow: 0 0 0 1px #3f6e9e;
+}
+
 .delete-link-btn {
   display: none;
   position: absolute;

@@ -19,6 +19,16 @@
 - `Configure Save API` button now appears only while edit mode is on.
 - Removed instructional status text shown on edit mode toggle.
 
+### Drag-and-Drop Reordering (Edit Mode)
+- Added drag/drop support for link tiles while edit mode is enabled.
+- Drop target is highlighted to show insertion point.
+- Frontend sends `action: "move_row"` with `row` and `targetRow`, then reloads links from the sheet on success.
+- Updated insertion logic to match right-side drop marker (drop after hovered tile).
+
+### Edit Mode Quick Entry/Exit
+- Added long-press activation on link tiles (works with touch and mouse hold).
+- Added click-off behavior to exit edit mode when clicking outside buttons/controls/modal.
+
 ## 2026-03-03
 
 ### Navbar Link Click Area Fix

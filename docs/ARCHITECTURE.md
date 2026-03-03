@@ -36,8 +36,11 @@
 
 ## Edit Mode Workflow
 - Edit mode is toggled client-side in `index.html`.
+- Edit mode can also be enabled by long-pressing a link tile (touch or mouse hold).
 - `Configure Save API` button is visible only while edit mode is enabled.
+- Clicking outside tiles/controls exits edit mode.
 - In edit mode:
+  - drag-and-drop on link tiles reorders rows in the sheet via `action: "move_row"`
   - clicking a link opens an icon modal
   - selecting an icon posts `action: "set_icon"` to Apps Script
   - delete button posts `action: "delete_row"` to Apps Script
@@ -48,6 +51,7 @@
 - Supported actions:
   - `set_icon`: writes icon value to column C
   - `delete_row`: deletes a row from the target sheet
+  - `move_row`: moves one row before another target row
 - Deployment and server code are documented in `docs/EDIT_MODE_SETUP.md`.
 
 ## Utility Page
