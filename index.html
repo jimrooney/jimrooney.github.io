@@ -128,10 +128,12 @@
           }
         }
 
+        const row = Number(anchor.dataset.sheetRow)
         const payload = {
+          action: "set_icon",
           token: editorState.token,
           sheet: editorState.sheetName,
-          row: Number(anchor.dataset.sheetRow),
+          row: row,
           icon: icon || ""
         }
 
@@ -150,6 +152,45 @@
           setStatus("Saved to Google Sheet.")
         } catch (error) {
           setStatus(`Save failed: ${error.message}`)
+        }
+      }
+
+      const deleteLinkRow = async (anchor) => {
+        if (!editorState.endpoint || !editorState.token) {
+          configureEditorApi()
+          if (!editorState.endpoint || !editorState.token) {
+            setStatus("Delete cancelled. API not configured.")
+            return
+          }
+        }
+
+        const row = Number(anchor.dataset.sheetRow)
+        const label = anchor.dataset.label || "this link"
+        if (!row || !confirm(`Delete '${label}' from sheet row ${row}?`)) return
+
+        const payload = {
+          action: "delete_row",
+          token: editorState.token,
+          sheet: editorState.sheetName,
+          row: row
+        }
+
+        setStatus("Deleting link...")
+        try {
+          const response = await fetch(editorState.endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(payload)
+          })
+          const data = await response.json()
+          if (!response.ok || !data.ok) {
+            throw new Error(data.error || `HTTP ${response.status}`)
+          }
+          const item = anchor.closest(".Nav")
+          if (item) item.remove()
+          setStatus("Link deleted from Google Sheet.")
+        } catch (error) {
+          setStatus(`Delete failed: ${error.message}`)
         }
       }
 
@@ -190,7 +231,7 @@
             const anchorText = hasIcon ? iconMarkup : esc(label)
             linksEl.insertAdjacentHTML(
               "afterbegin",
-              `<span class="Nav"><a class="${anchorClass}" style="${anchorStyle}" href="${esc(content)}" title="${esc(label)}" aria-label="${esc(label)}" data-sheet-row="${sheetRow}" data-label="${esc(label)}" data-icon="${esc(icon || "")}">${anchorText}</a></span>`
+              `<span class="Nav"><a class="${anchorClass}" style="${anchorStyle}" href="${esc(content)}" title="${esc(label)}" aria-label="${esc(label)}" data-sheet-row="${sheetRow}" data-label="${esc(label)}" data-icon="${esc(icon || "")}">${anchorText}</a><button type="button" class="delete-link-btn" title="Delete link" aria-label="Delete link" data-sheet-row="${sheetRow}">-</button></span>`
             )
           }
         })
@@ -200,7 +241,7 @@
         editorState.enabled = !editorState.enabled
         document.body.classList.toggle("edit-mode", editorState.enabled)
         editModeToggle.textContent = editorState.enabled ? "Edit Mode: On" : "Edit Mode: Off"
-        setStatus(editorState.enabled ? "Click a button to edit its icon." : "")
+        setStatus(editorState.enabled ? "Click a button to edit icon, or use the '-' circle to delete row." : "")
       })
 
       editorConfigBtn.addEventListener("click", configureEditorApi)
@@ -219,6 +260,16 @@
       })
 
       linksRoot.addEventListener("click", (event) => {
+        const deleteBtn = event.target.closest(".delete-link-btn")
+        if (deleteBtn && editorState.enabled) {
+          event.preventDefault()
+          event.stopPropagation()
+          const navItem = deleteBtn.closest(".Nav")
+          const anchor = navItem ? navItem.querySelector("a.BlueBox") : null
+          if (anchor) deleteLinkRow(anchor)
+          return
+        }
+
         const anchor = event.target.closest("a.BlueBox")
         if (!anchor || !editorState.enabled) return
         event.preventDefault()

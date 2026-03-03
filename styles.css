@@ -170,6 +170,35 @@ a:link {
 }
 .Nav {
   margin-left: 10px;
+  position: relative;
+  display: inline-block;
+}
+
+.delete-link-btn {
+  display: none;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #203b5d;
+  background: #e5eefb;
+  color: #10233a;
+  font-size: 14px;
+  line-height: 18px;
+  text-align: center;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.delete-link-btn:hover {
+  background: #f9d8d8;
+  color: #7d1111;
+}
+
+.edit-mode .delete-link-btn {
+  display: inline-block;
 }
 .BlueBox {
   padding: clamp(0.5px, 20vw, 4px);

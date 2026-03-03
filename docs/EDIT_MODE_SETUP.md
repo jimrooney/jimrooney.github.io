@@ -10,6 +10,7 @@ The frontend posts JSON as a plain text body (`Content-Type: text/plain`) to avo
 
 ```json
 {
+  "action": "set_icon",
   "token": "your-shared-token",
   "sheet": "Links",
   "row": 12,
@@ -19,6 +20,16 @@ The frontend posts JSON as a plain text body (`Content-Type: text/plain`) to avo
 
 - `row` is 1-based sheet row index.
 - `icon` is written to column C.
+- For row deletion, payload is:
+
+```json
+{
+  "action": "delete_row",
+  "token": "your-shared-token",
+  "sheet": "Links",
+  "row": 12
+}
+```
 
 ## Apps Script `Code.gs`
 
@@ -26,7 +37,7 @@ Use this in your script project attached to the spreadsheet:
 
 ```javascript
 const SPREADSHEET_ID = "1ZQDN58WT5hdFVYiJA7yIJocm4vbc0Gw8ecJUj1pkYwg";
-const SHARED_TOKEN = "replace-with-long-random-token";
+const SHARED_TOKEN = "jr_icon_edit_2026_3f8cc9b17d5a4e7ea28c1d9f6ab340c2f71e5a9448b64d2c";
 
 function doOptions() {
   return ContentService.createTextOutput("")
@@ -40,6 +51,7 @@ function doPost(e) {
       return jsonResponse({ ok: false, error: "Unauthorized" });
     }
 
+    const action = String(body.action || "set_icon");
     const sheetName = String(body.sheet || "Links");
     const row = Number(body.row);
     const icon = String(body.icon || "");
@@ -54,9 +66,21 @@ function doPost(e) {
       return jsonResponse({ ok: false, error: "Sheet not found" });
     }
 
-    // Column C = icon
-    sheet.getRange(row, 3).setValue(icon);
-    return jsonResponse({ ok: true, row: row, icon: icon });
+    if (action === "delete_row") {
+      if (row > sheet.getLastRow()) {
+        return jsonResponse({ ok: false, error: "Row out of range" });
+      }
+      sheet.deleteRow(row);
+      return jsonResponse({ ok: true, action: action, row: row });
+    }
+
+    if (action === "set_icon") {
+      // Column C = icon
+      sheet.getRange(row, 3).setValue(icon);
+      return jsonResponse({ ok: true, action: action, row: row, icon: icon });
+    }
+
+    return jsonResponse({ ok: false, error: "Unsupported action" });
   } catch (err) {
     return jsonResponse({ ok: false, error: String(err) });
   }
@@ -87,4 +111,6 @@ function jsonResponse(payload) {
 
 - If you redeploy as a new version, update the URL in the site config.
 - Keep the token private. Anyone with URL + token can write icons.
-- Current edit mode only writes column C (`icon`) and leaves columns A/B untouched.
+- Edit mode now supports:
+  - setting/clearing column C icon values
+  - deleting entire link rows from the sheet
