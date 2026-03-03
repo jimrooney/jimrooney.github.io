@@ -12,54 +12,222 @@
 
     
     <P>&nbsp;</P>
-    <div id="LinkContainer" />
+    <div class="editor-bar">
+      <button id="editModeToggle" class="editor-btn" type="button">Edit Mode: Off</button>
+      <button id="editorConfigBtn" class="editor-btn" type="button">Configure Save API</button>
+      <span id="editorStatus" class="editor-status"></span>
+    </div>
+    <div id="LinkContainer"></div>
+    <div id="iconModal" class="icon-modal hidden" role="dialog" aria-modal="true" aria-labelledby="iconModalTitle">
+      <div class="icon-modal-content">
+        <h3 id="iconModalTitle">Choose Icon</h3>
+        <p id="iconModalSub" class="icon-modal-sub"></p>
+        <div id="iconChoices" class="icon-choices"></div>
+        <div class="icon-modal-actions">
+          <button id="iconClearBtn" class="editor-btn" type="button">Clear Icon</button>
+          <button id="iconCancelBtn" class="editor-btn" type="button">Cancel</button>
+        </div>
+      </div>
+    </div>
     <!-- Navbar takes the data loaded by root (from the google spreadsheet) and loops over it making links -->
     <script>
-      // Navbar
-      root.onload = (data) => {
-        console.log("Root loaded: ", data)
-        this.data = data
-        const body = document.querySelector("#LinkContainer")
-        const links = `<div class="links"></div>`
-        body.insertAdjacentHTML("afterbegin", links)
+      // Navbar + edit mode
+      const editorState = {
+        enabled: false,
+        endpoint: localStorage.getItem("iconEditorEndpoint") || "",
+        token: localStorage.getItem("iconEditorToken") || "",
+        sheetName: "Links",
+        targetAnchor: null
+      }
 
-        const esc = (value) =>
-          String(value ?? "").replace(/[&<>"']/g, (char) => {
-            const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }
-            return map[char]
-          })
+      const curatedIcons = [
+        "mdi:airplane",
+        "mdi:map",
+        "mdi:compass",
+        "mdi:weather-windy",
+        "mdi:clock",
+        "mdi:calendar",
+        "mdi:email",
+        "mdi:phone",
+        "mdi:camera",
+        "mdi:folder",
+        "mdi:link-variant",
+        "mdi:shield-check",
+        "mdi:account",
+        "mdi:account-group",
+        "mdi:home",
+        "mdi:cog"
+      ]
 
-        const iconMarkupFor = (iconValue, label) => {
-          const icon = String(iconValue ?? "").trim()
-          if (!icon) return ""
-          const src = icon.includes(":")
-            ? `https://api.iconify.design/${encodeURIComponent(icon)}.svg`
-            : icon
-          return `<span class="icon-wrap" style="display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;"><img class="nav-icon" src="${esc(src)}" alt="" style="width:clamp(18px,6vw,32px);height:clamp(18px,6vw,32px);display:block;" /><span class="icon-label" style="font-size:10px;line-height:1;display:block;">${esc(label)}</span></span>`
+      const esc = (value) =>
+        String(value ?? "").replace(/[&<>"']/g, (char) => {
+          const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }
+          return map[char]
+        })
+
+      const iconMarkupFor = (iconValue, label) => {
+        const icon = String(iconValue ?? "").trim()
+        if (!icon) return ""
+        const src = icon.includes(":")
+          ? `https://api.iconify.design/${encodeURIComponent(icon)}.svg`
+          : icon
+        return `<span class="icon-wrap" style="display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;"><img class="nav-icon" src="${esc(src)}" alt="" style="width:clamp(18px,6vw,32px);height:clamp(18px,6vw,32px);display:block;" /><span class="icon-label" style="font-size:10px;line-height:1;display:block;">${esc(label)}</span></span>`
+      }
+
+      const iconAnchorStyle =
+        "display:inline-flex;align-items:center;justify-content:center;min-width:clamp(40px,8vw,58px);padding:4px 5px;line-height:1;text-shadow:none;text-decoration:none;white-space:nowrap;"
+
+      const statusEl = document.getElementById("editorStatus")
+      const linksRoot = document.getElementById("LinkContainer")
+      const editModeToggle = document.getElementById("editModeToggle")
+      const editorConfigBtn = document.getElementById("editorConfigBtn")
+      const iconModal = document.getElementById("iconModal")
+      const iconModalSub = document.getElementById("iconModalSub")
+      const iconChoices = document.getElementById("iconChoices")
+      const iconClearBtn = document.getElementById("iconClearBtn")
+      const iconCancelBtn = document.getElementById("iconCancelBtn")
+
+      const setStatus = (text) => {
+        statusEl.textContent = text
+      }
+
+      const configureEditorApi = () => {
+        const endpoint = prompt("Apps Script Web App URL", editorState.endpoint)
+        if (endpoint === null) return
+        const token = prompt("Shared token (must match Apps Script)", editorState.token)
+        if (token === null) return
+        editorState.endpoint = endpoint.trim()
+        editorState.token = token.trim()
+        localStorage.setItem("iconEditorEndpoint", editorState.endpoint)
+        localStorage.setItem("iconEditorToken", editorState.token)
+        setStatus(editorState.endpoint ? "Save API configured." : "Save API not set.")
+      }
+
+      const applyIconToAnchor = (anchor, icon) => {
+        const label = anchor.dataset.label || anchor.textContent.trim()
+        const iconMarkup = iconMarkupFor(icon, label)
+        if (iconMarkup) {
+          anchor.classList.add("icon-only")
+          anchor.style.cssText = iconAnchorStyle
+          anchor.innerHTML = iconMarkup
+          anchor.dataset.icon = icon
+        } else {
+          anchor.classList.remove("icon-only")
+          anchor.style.cssText = ""
+          anchor.textContent = label
+          anchor.dataset.icon = ""
+        }
+      }
+
+      const saveIconToSheet = async (anchor, icon) => {
+        if (!editorState.endpoint || !editorState.token) {
+          configureEditorApi()
+          if (!editorState.endpoint || !editorState.token) {
+            setStatus("Save cancelled. API not configured.")
+            return
+          }
         }
 
-        data.rows.toReversed().forEach((row) => {
+        const payload = {
+          token: editorState.token,
+          sheet: editorState.sheetName,
+          row: Number(anchor.dataset.sheetRow),
+          icon: icon || ""
+        }
+
+        setStatus("Saving icon...")
+        try {
+          const response = await fetch(editorState.endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(payload)
+          })
+          const data = await response.json()
+          if (!response.ok || !data.ok) {
+            throw new Error(data.error || `HTTP ${response.status}`)
+          }
+          applyIconToAnchor(anchor, icon)
+          setStatus("Saved to Google Sheet.")
+        } catch (error) {
+          setStatus(`Save failed: ${error.message}`)
+        }
+      }
+
+      const closeModal = () => {
+        iconModal.classList.add("hidden")
+      }
+
+      const openModal = (anchor) => {
+        editorState.targetAnchor = anchor
+        iconModalSub.textContent = `Editing: ${anchor.dataset.label || ""}`
+        iconChoices.innerHTML = curatedIcons
+          .map((iconId) => {
+            const src = `https://api.iconify.design/${encodeURIComponent(iconId)}.svg`
+            return `<button type="button" class="icon-choice" data-icon="${esc(iconId)}"><img src="${esc(src)}" alt="${esc(iconId)}" /><span>${esc(iconId)}</span></button>`
+          })
+          .join("")
+        iconModal.classList.remove("hidden")
+      }
+
+      root.onload = (data) => {
+        console.log("Root loaded: ", data)
+        const rows = data.rows || []
+        linksRoot.innerHTML = `<div class="links"></div>`
+        const linksEl = linksRoot.querySelector(".links")
+        rows.toReversed().forEach((row, idx) => {
           const label = row.c[0]?.v
           const content = row.c[1]?.v
           const icon = row.c[2]?.v
+          const sheetRow = rows.length - idx
           if (!label || !content) return
-          if (label == "HTML") {
-            body.insertAdjacentHTML("afterbegin", `${content}`)
+          if (label === "HTML") {
+            linksEl.insertAdjacentHTML("afterbegin", `${content}`)
           } else {
             const iconMarkup = iconMarkupFor(icon, label)
             const hasIcon = iconMarkup.length > 0
             const anchorClass = hasIcon ? "active BlueBox icon-only" : "active BlueBox"
-            const anchorStyle = hasIcon
-              ? `display:inline-flex;align-items:center;justify-content:center;min-width:clamp(40px,8vw,58px);padding:4px 5px;line-height:1;text-shadow:none;text-decoration:none;white-space:nowrap;`
-              : ""
+            const anchorStyle = hasIcon ? iconAnchorStyle : ""
             const anchorText = hasIcon ? iconMarkup : esc(label)
-            body.insertAdjacentHTML(
+            linksEl.insertAdjacentHTML(
               "afterbegin",
-              `<span class="Nav"><a class="${anchorClass}" style="${anchorStyle}" href="${esc(content)}" title="${esc(label)}" aria-label="${esc(label)}">${anchorText}</a></span>`
+              `<span class="Nav"><a class="${anchorClass}" style="${anchorStyle}" href="${esc(content)}" title="${esc(label)}" aria-label="${esc(label)}" data-sheet-row="${sheetRow}" data-label="${esc(label)}" data-icon="${esc(icon || "")}">${anchorText}</a></span>`
             )
           }
         })
       }
+
+      editModeToggle.addEventListener("click", () => {
+        editorState.enabled = !editorState.enabled
+        document.body.classList.toggle("edit-mode", editorState.enabled)
+        editModeToggle.textContent = editorState.enabled ? "Edit Mode: On" : "Edit Mode: Off"
+        setStatus(editorState.enabled ? "Click a button to edit its icon." : "")
+      })
+
+      editorConfigBtn.addEventListener("click", configureEditorApi)
+      iconCancelBtn.addEventListener("click", closeModal)
+      iconClearBtn.addEventListener("click", async () => {
+        if (!editorState.targetAnchor) return
+        await saveIconToSheet(editorState.targetAnchor, "")
+        closeModal()
+      })
+
+      iconChoices.addEventListener("click", async (event) => {
+        const button = event.target.closest(".icon-choice")
+        if (!button || !editorState.targetAnchor) return
+        await saveIconToSheet(editorState.targetAnchor, button.dataset.icon || "")
+        closeModal()
+      })
+
+      linksRoot.addEventListener("click", (event) => {
+        const anchor = event.target.closest("a.BlueBox")
+        if (!anchor || !editorState.enabled) return
+        event.preventDefault()
+        openModal(anchor)
+      })
+
+      iconModal.addEventListener("click", (event) => {
+        if (event.target === iconModal) closeModal()
+      })
     </script>
 
     
