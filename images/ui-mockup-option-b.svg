@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bgB" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#edf3f8"/>
+      <stop offset="1" stop-color="#d7e4ef"/>
+    </linearGradient>
+    <linearGradient id="mount" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8aa5be"/>
+      <stop offset="1" stop-color="#506f8c"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bgB)"/>
+  <path d="M0 610 L220 470 L420 620 L650 420 L860 590 L1090 430 L1300 620 L1600 460 L1600 900 L0 900 Z" fill="url(#mount)" opacity="0.45"/>
+  <rect x="70" y="50" width="1460" height="130" rx="26" fill="#f7fbff" stroke="#b5c9db" stroke-width="2"/>
+  <text x="120" y="130" font-family="Georgia, 'Times New Roman', serif" font-size="68" fill="#153250">JimRooney</text>
+  <text x="535" y="130" font-family="Segoe UI, Arial, sans-serif" font-size="30" fill="#486885">flight tools • weather • operations</text>
+  <rect x="70" y="230" width="1460" height="580" rx="26" fill="#f9fcff" stroke="#b5c9db" stroke-width="2"/>
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="30" fill="#173553" text-anchor="middle">
+    <rect x="130" y="290" width="260" height="110" rx="18" fill="#e6f0fa" stroke="#8ea8c2"/><text x="260" y="358">Roster</text>
+    <rect x="420" y="290" width="260" height="110" rx="18" fill="#e6f0fa" stroke="#8ea8c2"/><text x="550" y="358">FMS</text>
+    <rect x="710" y="290" width="260" height="110" rx="18" fill="#e6f0fa" stroke="#8ea8c2"/><text x="840" y="358">Webcams</text>
+    <rect x="1000" y="290" width="260" height="110" rx="18" fill="#e6f0fa" stroke="#8ea8c2"/><text x="1130" y="358">Daily Ops</text>
+    <rect x="1290" y="290" width="180" height="110" rx="18" fill="#e6f0fa" stroke="#8ea8c2"/><text x="1380" y="358">Wind</text>
+    <rect x="130" y="440" width="260" height="110" rx="18" fill="#e6f0fa" stroke="#8ea8c2"/><text x="260" y="508">Max</text>
+    <rect x="420" y="440" width="260" height="110" rx="18" fill="#e6f0fa" stroke="#8ea8c2"/><text x="550" y="508">Datastore</text>
+    <rect x="710" y="440" width="260" height="110" rx="18" fill="#e6f0fa" stroke="#8ea8c2"/><text x="840" y="508">Calendar</text>
+    <rect x="1000" y="440" width="260" height="110" rx="18" fill="#e6f0fa" stroke="#8ea8c2"/><text x="1130" y="508">Mail</text>
+    <rect x="1290" y="440" width="180" height="110" rx="18" fill="#e6f0fa" stroke="#8ea8c2"/><text x="1380" y="508">SMS</text>
+    <rect x="130" y="590" width="260" height="110" rx="18" fill="#e6f0fa" stroke="#8ea8c2"/><text x="260" y="658">SkySeat</text>
+    <rect x="420" y="590" width="260" height="110" rx="18" fill="#e6f0fa" stroke="#8ea8c2"/><text x="550" y="658">SST</text>
+    <rect x="710" y="590" width="260" height="110" rx="18" fill="#e6f0fa" stroke="#8ea8c2"/><text x="840" y="658">WorldClock</text>
+    <rect x="1000" y="590" width="260" height="110" rx="18" fill="#e6f0fa" stroke="#8ea8c2"/><text x="1130" y="658">ChatGPT</text>
+    <rect x="1290" y="590" width="180" height="110" rx="18" fill="#e6f0fa" stroke="#8ea8c2"/><text x="1380" y="658">Tools</text>
+  </g>
+</svg>

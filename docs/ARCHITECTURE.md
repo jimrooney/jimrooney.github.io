@@ -26,7 +26,29 @@
 - Accessibility:
   - icon links keep `title` and `aria-label` from column A label.
 
+## Edit Mode Workflow
+- Edit mode is toggled client-side in `index.html`.
+- In edit mode:
+  - clicking a link opens an icon modal
+  - selecting an icon posts `action: "set_icon"` to Apps Script
+  - delete button posts `action: "delete_row"` to Apps Script
+- API configuration (endpoint + token) is stored in browser `localStorage`.
+
+## Apps Script Contract
+- Frontend sends plain text JSON body to avoid browser preflight issues.
+- Supported actions:
+  - `set_icon`: writes icon value to column C
+  - `delete_row`: deletes a row from the target sheet
+- Deployment and server code are documented in `docs/EDIT_MODE_SETUP.md`.
+
 ## Utility Page
 - `icon-chooser.html` is a local helper for selecting icon IDs/URLs.
-- Supports multiple icon sources and search filtering.
+- Supports the same icon sets as in-page modal:
+  - `mdi`, `lucide`, `heroicons-solid`, `heroicons-outline`, `tabler`, `fa6-solid`, `material-symbols`, `ion`, `ph`
+- Supports search and full library browsing with pagination.
 
+## Visual Direction
+- Current homepage styling uses the Option A aviation ops-deck direction:
+  - dark gradient background
+  - elevated light header panel
+  - high-contrast rounded action tiles
