@@ -56,6 +56,12 @@
         gap: 10px;
       }
 
+      .toolbar-custom {
+        display: none;
+        grid-template-columns: 1fr 2fr;
+        gap: 10px;
+      }
+
       input,
       select {
         width: 100%;
@@ -162,10 +168,27 @@
           <option value="lucide">Lucide (outline)</option>
           <option value="mdi">Material Design Icons (filled)</option>
           <option value="heroicons-solid">Heroicons Solid (filled)</option>
+          <option value="heroicons-outline">Heroicons Outline</option>
+          <option value="fa6-solid">Font Awesome 6 Solid</option>
+          <option value="fa6-regular">Font Awesome 6 Regular</option>
+          <option value="fa6-brands">Font Awesome 6 Brands</option>
+          <option value="material-symbols">Material Symbols</option>
+          <option value="ion">Ionicons</option>
+          <option value="solar-bold">Solar Bold</option>
           <option value="tabler">Tabler (outline)</option>
+          <option value="custom">Custom Prefix</option>
         </select>
         <input id="search" type="text" placeholder="Search icons, e.g. plane, mail, clock" />
         <button id="clearBtn" type="button">Clear</button>
+      </section>
+      <section id="customRow" class="panel toolbar-custom">
+        <input id="customPrefix" type="text" value="mdi" placeholder="Iconify prefix, e.g. mdi" />
+        <input
+          id="customNames"
+          type="text"
+          value="airplane,email,clock,calendar,home,map,compass,phone,camera,user,users"
+          placeholder="Comma-separated icon names"
+        />
       </section>
 
       <section id="grid" class="panel grid"></section>
@@ -281,6 +304,184 @@
             "briefcase"
           ]
         },
+        "heroicons-outline": {
+          label: "Heroicons Outline",
+          names: [
+            "paper-airplane",
+            "map",
+            "compass",
+            "cloud",
+            "sun",
+            "moon",
+            "calendar-days",
+            "clock",
+            "envelope",
+            "chat-bubble-left-right",
+            "phone",
+            "globe-alt",
+            "camera",
+            "document-text",
+            "clipboard-document-list",
+            "book-open",
+            "home",
+            "cog-6-tooth",
+            "wrench-screwdriver",
+            "folder",
+            "link",
+            "shield-check",
+            "user",
+            "users",
+            "briefcase"
+          ]
+        },
+        "fa6-solid": {
+          label: "Font Awesome 6 Solid",
+          names: [
+            "plane",
+            "map-location-dot",
+            "compass",
+            "wind",
+            "cloud-sun",
+            "calendar-days",
+            "clock",
+            "envelope",
+            "message",
+            "phone",
+            "globe",
+            "camera",
+            "file-lines",
+            "clipboard-list",
+            "book-open",
+            "house",
+            "gear",
+            "wrench",
+            "folder",
+            "link",
+            "shield-halved",
+            "user",
+            "users",
+            "briefcase"
+          ]
+        },
+        "fa6-regular": {
+          label: "Font Awesome 6 Regular",
+          names: [
+            "calendar",
+            "clock",
+            "envelope",
+            "message",
+            "folder",
+            "file-lines",
+            "clipboard",
+            "address-book",
+            "circle-user",
+            "bell",
+            "star",
+            "bookmark"
+          ]
+        },
+        "fa6-brands": {
+          label: "Font Awesome 6 Brands",
+          names: [
+            "github",
+            "google",
+            "microsoft",
+            "apple",
+            "android",
+            "x-twitter",
+            "youtube",
+            "facebook",
+            "instagram",
+            "whatsapp",
+            "slack",
+            "docker"
+          ]
+        },
+        "material-symbols": {
+          label: "Material Symbols",
+          names: [
+            "flight",
+            "flight_takeoff",
+            "flight_land",
+            "map",
+            "explore",
+            "air",
+            "partly_cloudy_day",
+            "calendar_month",
+            "schedule",
+            "mail",
+            "chat",
+            "call",
+            "language",
+            "photo_camera",
+            "description",
+            "checklist",
+            "menu_book",
+            "home",
+            "settings",
+            "build",
+            "folder",
+            "link",
+            "verified_user",
+            "person",
+            "groups"
+          ]
+        },
+        ion: {
+          label: "Ionicons",
+          names: [
+            "airplane",
+            "map",
+            "compass",
+            "cloud",
+            "sunny",
+            "moon",
+            "calendar",
+            "time",
+            "mail",
+            "chatbubble",
+            "call",
+            "globe",
+            "camera",
+            "document-text",
+            "clipboard",
+            "book",
+            "home",
+            "settings",
+            "construct",
+            "folder",
+            "link",
+            "shield-checkmark",
+            "person",
+            "people"
+          ]
+        },
+        "solar-bold": {
+          label: "Solar Bold",
+          names: [
+            "airplane-square",
+            "map-point",
+            "compass",
+            "cloud-sun-2",
+            "calendar",
+            "clock-circle",
+            "letter",
+            "chat-round",
+            "phone-calling-rounded",
+            "global",
+            "camera",
+            "document-text",
+            "clipboard-text",
+            "book-bookmark",
+            "home-angle",
+            "settings-bold",
+            "folder-with-files",
+            "link-round",
+            "shield-check",
+            "user",
+            "users-group-rounded"
+          ]
+        },
         tabler: {
           label: "Tabler (outline)",
           names: [
@@ -315,6 +516,9 @@
 
       const grid = document.getElementById("grid");
       const source = document.getElementById("source");
+      const customRow = document.getElementById("customRow");
+      const customPrefix = document.getElementById("customPrefix");
+      const customNames = document.getElementById("customNames");
       const search = document.getElementById("search");
       const clearBtn = document.getElementById("clearBtn");
       const idOut = document.getElementById("idOut");
@@ -333,31 +537,58 @@
         return `https://api.iconify.design/${id}.svg`;
       }
 
-      function selectedId() {
-        return iconId(selectedSource, selectedName);
+      function currentPrefix() {
+        if (selectedSource === "custom") {
+          const prefix = customPrefix.value.trim();
+          return prefix || "mdi";
+        }
+        return selectedSource;
       }
 
-      function setSelection(prefix, name) {
-        selectedSource = prefix;
+      function currentNames() {
+        if (selectedSource === "custom") {
+          return customNames.value
+            .split(",")
+            .map((n) => n.trim())
+            .filter(Boolean);
+        }
+        return iconSets[selectedSource].names;
+      }
+
+      function selectedId() {
+        return iconId(currentPrefix(), selectedName);
+      }
+
+      function setSelection(name) {
         selectedName = name;
-        source.value = prefix;
+        source.value = selectedSource;
         idOut.textContent = selectedId();
         urlOut.textContent = iconUrl(selectedId());
       }
 
       function render(filterText = "") {
         const q = filterText.trim().toLowerCase();
-        const names = iconSets[selectedSource].names;
+        const names = currentNames();
+        if (!names.length) {
+          grid.innerHTML = "<div class='name'>No icons for this source/list yet.</div>";
+          return;
+        }
+        if (!names.includes(selectedName)) {
+          selectedName = names[0];
+        }
         const list = names.filter((n) => n.includes(q));
+        const prefix = currentPrefix();
         grid.innerHTML = "";
+        idOut.textContent = selectedId();
+        urlOut.textContent = iconUrl(selectedId());
         list.forEach((name) => {
-          const id = iconId(selectedSource, name);
+          const id = iconId(prefix, name);
           const card = document.createElement("button");
           card.type = "button";
           card.className = `card${name === selectedName ? " selected" : ""}`;
           card.innerHTML = `<img src="${iconUrl(id)}" alt="${name}" /><div class="name">${name}</div>`;
           card.addEventListener("click", () => {
-            setSelection(selectedSource, name);
+            setSelection(name);
             render(search.value);
           });
           grid.appendChild(card);
@@ -377,8 +608,14 @@
 
       source.addEventListener("change", (e) => {
         selectedSource = e.target.value;
-        selectedName = iconSets[selectedSource].names[0];
-        setSelection(selectedSource, selectedName);
+        customRow.style.display = selectedSource === "custom" ? "grid" : "none";
+        selectedName = currentNames()[0] || "";
+        setSelection(selectedName);
+        render(search.value);
+      });
+      customPrefix.addEventListener("input", () => render(search.value));
+      customNames.addEventListener("input", () => {
+        selectedName = currentNames()[0] || "";
         render(search.value);
       });
       search.addEventListener("input", (e) => render(e.target.value));
@@ -389,7 +626,8 @@
       copyId.addEventListener("click", () => copyText(selectedId(), copyId, "Copied"));
       copyUrl.addEventListener("click", () => copyText(iconUrl(selectedId()), copyUrl, "Copied"));
 
-      setSelection(selectedSource, selectedName);
+      customRow.style.display = "none";
+      setSelection(selectedName);
       render();
     </script>
   </body>
