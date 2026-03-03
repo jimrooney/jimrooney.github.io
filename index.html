@@ -12,18 +12,34 @@
 
     
     <P>&nbsp;</P>
+    <div id="LinkContainer"></div>
     <div class="editor-bar">
       <button id="editModeToggle" class="editor-btn" type="button">Edit Mode: Off</button>
       <button id="editorConfigBtn" class="editor-btn" type="button">Configure Save API</button>
       <span id="editorStatus" class="editor-status"></span>
     </div>
-    <div id="LinkContainer"></div>
     <div id="iconModal" class="icon-modal hidden" role="dialog" aria-modal="true" aria-labelledby="iconModalTitle">
       <div class="icon-modal-content">
         <h3 id="iconModalTitle">Choose Icon</h3>
         <p id="iconModalSub" class="icon-modal-sub"></p>
+        <div class="icon-search-row">
+          <select id="iconSetSelect" aria-label="Icon set">
+            <option value="mdi">Material Design Icons (mdi)</option>
+            <option value="lucide">Lucide</option>
+            <option value="heroicons-solid">Heroicons Solid</option>
+            <option value="heroicons-outline">Heroicons Outline</option>
+            <option value="tabler">Tabler</option>
+            <option value="fa6-solid">Font Awesome 6 Solid</option>
+            <option value="material-symbols">Material Symbols</option>
+            <option value="ion">Ionicons</option>
+            <option value="ph">Phosphor (ph)</option>
+          </select>
+          <input id="iconSearchInput" type="text" placeholder="Search full icon set (example: plane or heroicons-solid:camera)" />
+          <span id="iconSearchStatus" class="icon-search-status"></span>
+        </div>
         <div id="iconChoices" class="icon-choices"></div>
         <div class="icon-modal-actions">
+          <a class="icon-chooser-link" href="icon-chooser.html" target="_blank" rel="noopener noreferrer">Open full icon chooser</a>
           <button id="iconClearBtn" class="editor-btn" type="button">Clear Icon</button>
           <button id="iconCancelBtn" class="editor-btn" type="button">Cancel</button>
         </div>
@@ -40,24 +56,138 @@
         targetAnchor: null
       }
 
-      const curatedIcons = [
-        "mdi:airplane",
-        "mdi:map",
-        "mdi:compass",
-        "mdi:weather-windy",
-        "mdi:clock",
-        "mdi:calendar",
-        "mdi:email",
-        "mdi:phone",
-        "mdi:camera",
-        "mdi:folder",
-        "mdi:link-variant",
-        "mdi:shield-check",
-        "mdi:account",
-        "mdi:account-group",
-        "mdi:home",
-        "mdi:cog"
-      ]
+      const curatedIconsBySet = {
+        mdi: [
+          "mdi:airplane",
+          "mdi:map",
+          "mdi:compass",
+          "mdi:weather-windy",
+          "mdi:clock",
+          "mdi:calendar",
+          "mdi:email",
+          "mdi:phone",
+          "mdi:camera",
+          "mdi:folder",
+          "mdi:link-variant",
+          "mdi:shield-check",
+          "mdi:account",
+          "mdi:account-group",
+          "mdi:home",
+          "mdi:cog"
+        ],
+        lucide: [
+          "lucide:plane",
+          "lucide:map",
+          "lucide:compass",
+          "lucide:wind",
+          "lucide:clock-3",
+          "lucide:calendar",
+          "lucide:mail",
+          "lucide:phone",
+          "lucide:camera",
+          "lucide:folder",
+          "lucide:link",
+          "lucide:shield-check"
+        ],
+        "heroicons-solid": [
+          "heroicons-solid:paper-airplane",
+          "heroicons-solid:map",
+          "heroicons-solid:compass",
+          "heroicons-solid:clock",
+          "heroicons-solid:calendar-days",
+          "heroicons-solid:envelope",
+          "heroicons-solid:phone",
+          "heroicons-solid:camera",
+          "heroicons-solid:folder",
+          "heroicons-solid:link",
+          "heroicons-solid:shield-check",
+          "heroicons-solid:user"
+        ],
+        "heroicons-outline": [
+          "heroicons-outline:paper-airplane",
+          "heroicons-outline:map",
+          "heroicons-outline:compass",
+          "heroicons-outline:clock",
+          "heroicons-outline:calendar-days",
+          "heroicons-outline:envelope",
+          "heroicons-outline:phone",
+          "heroicons-outline:camera",
+          "heroicons-outline:folder",
+          "heroicons-outline:link",
+          "heroicons-outline:shield-check",
+          "heroicons-outline:user"
+        ],
+        tabler: [
+          "tabler:plane",
+          "tabler:map",
+          "tabler:compass",
+          "tabler:wind",
+          "tabler:clock",
+          "tabler:calendar",
+          "tabler:mail",
+          "tabler:phone",
+          "tabler:camera",
+          "tabler:folder",
+          "tabler:link",
+          "tabler:shield-check"
+        ],
+        "fa6-solid": [
+          "fa6-solid:plane",
+          "fa6-solid:map-location-dot",
+          "fa6-solid:compass",
+          "fa6-solid:clock",
+          "fa6-solid:calendar-days",
+          "fa6-solid:envelope",
+          "fa6-solid:phone",
+          "fa6-solid:camera",
+          "fa6-solid:folder",
+          "fa6-solid:link",
+          "fa6-solid:shield-halved",
+          "fa6-solid:user"
+        ],
+        "material-symbols": [
+          "material-symbols:flight",
+          "material-symbols:map",
+          "material-symbols:explore",
+          "material-symbols:schedule",
+          "material-symbols:calendar_month",
+          "material-symbols:mail",
+          "material-symbols:call",
+          "material-symbols:photo_camera",
+          "material-symbols:folder",
+          "material-symbols:link",
+          "material-symbols:verified_user",
+          "material-symbols:person"
+        ],
+        ion: [
+          "ion:airplane",
+          "ion:map",
+          "ion:compass",
+          "ion:time",
+          "ion:calendar",
+          "ion:mail",
+          "ion:call",
+          "ion:camera",
+          "ion:folder",
+          "ion:link",
+          "ion:shield-checkmark",
+          "ion:person"
+        ],
+        ph: [
+          "ph:airplane-in-flight-bold",
+          "ph:map-pin-bold",
+          "ph:compass-bold",
+          "ph:clock-bold",
+          "ph:calendar-bold",
+          "ph:envelope-simple-bold",
+          "ph:phone-bold",
+          "ph:camera-bold",
+          "ph:folder-bold",
+          "ph:link-bold",
+          "ph:shield-check-bold",
+          "ph:user-bold"
+        ]
+      }
 
       const esc = (value) =>
         String(value ?? "").replace(/[&<>"']/g, (char) => {
@@ -83,9 +213,15 @@
       const editorConfigBtn = document.getElementById("editorConfigBtn")
       const iconModal = document.getElementById("iconModal")
       const iconModalSub = document.getElementById("iconModalSub")
+      const iconSetSelect = document.getElementById("iconSetSelect")
+      const iconSearchInput = document.getElementById("iconSearchInput")
+      const iconSearchStatus = document.getElementById("iconSearchStatus")
       const iconChoices = document.getElementById("iconChoices")
       const iconClearBtn = document.getElementById("iconClearBtn")
       const iconCancelBtn = document.getElementById("iconCancelBtn")
+      let iconSearchTimer = null
+      let iconSearchToken = 0
+      let selectedIconSet = "mdi"
 
       const setStatus = (text) => {
         statusEl.textContent = text
@@ -198,15 +334,73 @@
         iconModal.classList.add("hidden")
       }
 
-      const openModal = (anchor) => {
-        editorState.targetAnchor = anchor
-        iconModalSub.textContent = `Editing: ${anchor.dataset.label || ""}`
-        iconChoices.innerHTML = curatedIcons
+      const renderIconChoices = (iconIds, emptyText) => {
+        if (!iconIds.length) {
+          iconChoices.innerHTML = `<div class="icon-empty">${esc(emptyText || "No icons found.")}</div>`
+          return
+        }
+        iconChoices.innerHTML = iconIds
           .map((iconId) => {
             const src = `https://api.iconify.design/${encodeURIComponent(iconId)}.svg`
             return `<button type="button" class="icon-choice" data-icon="${esc(iconId)}"><img src="${esc(src)}" alt="${esc(iconId)}" /><span>${esc(iconId)}</span></button>`
           })
           .join("")
+      }
+
+      const renderCuratedIcons = () => {
+        const curated = curatedIconsBySet[selectedIconSet] || curatedIconsBySet.mdi || []
+        iconSearchStatus.textContent = `Showing curated icons from ${selectedIconSet}.`
+        renderIconChoices(curated, "No curated icons configured for this set.")
+      }
+
+      const searchIconify = async (rawQuery) => {
+        const query = String(rawQuery || "").trim()
+        if (!query) {
+          renderCuratedIcons()
+          return
+        }
+
+        const token = ++iconSearchToken
+        let prefix = selectedIconSet
+        let term = query
+        const colonIndex = query.indexOf(":")
+        if (colonIndex > 0) {
+          const maybePrefix = query.slice(0, colonIndex).trim()
+          const remainder = query.slice(colonIndex + 1).trim()
+          if (maybePrefix && remainder) {
+            prefix = maybePrefix
+            term = remainder
+          }
+        }
+
+        iconSearchStatus.textContent = `Searching ${prefix}...`
+        try {
+          const endpoint = `https://api.iconify.design/search?query=${encodeURIComponent(term)}&prefix=${encodeURIComponent(prefix)}&limit=80`
+          const response = await fetch(endpoint)
+          if (!response.ok) throw new Error(`HTTP ${response.status}`)
+          const data = await response.json()
+          if (token !== iconSearchToken) return
+          const icons = Array.isArray(data.icons) ? data.icons : []
+          iconSearchStatus.textContent = icons.length
+            ? `${icons.length} result(s) in ${prefix}.`
+            : `No matches found in ${prefix}.`
+          renderIconChoices(icons, `No matches found in ${prefix}.`)
+        } catch (_) {
+          if (token !== iconSearchToken) return
+          iconSearchStatus.textContent = "Search failed. Showing curated icons."
+          renderCuratedIcons()
+        }
+      }
+
+      const openModal = (anchor) => {
+        editorState.targetAnchor = anchor
+        iconModalSub.textContent = `Editing: ${anchor.dataset.label || ""}`
+        const currentIcon = String(anchor.dataset.icon || "").trim()
+        const defaultSet = currentIcon.includes(":") ? currentIcon.split(":")[0] : "mdi"
+        selectedIconSet = curatedIconsBySet[defaultSet] ? defaultSet : "mdi"
+        iconSetSelect.value = selectedIconSet
+        iconSearchInput.value = ""
+        renderCuratedIcons()
         iconModal.classList.remove("hidden")
       }
 
@@ -258,6 +452,20 @@
         await saveIconToSheet(editorState.targetAnchor, button.dataset.icon || "")
         closeModal()
       })
+      iconSearchInput.addEventListener("input", (event) => {
+        if (iconSearchTimer) clearTimeout(iconSearchTimer)
+        iconSearchTimer = setTimeout(() => {
+          searchIconify(event.target.value)
+        }, 250)
+      })
+      iconSetSelect.addEventListener("change", (event) => {
+        selectedIconSet = event.target.value || "mdi"
+        if (iconSearchInput.value.trim()) {
+          searchIconify(iconSearchInput.value)
+        } else {
+          renderCuratedIcons()
+        }
+      })
 
       linksRoot.addEventListener("click", (event) => {
         const deleteBtn = event.target.closest(".delete-link-btn")
@@ -280,9 +488,5 @@
         if (event.target === iconModal) closeModal()
       })
     </script>
-
-    
-    <div class="MyHeader BlueBox MyBox" style="width: 60vw; height: 8vh"><a href="http://nexuscode.co.nz">I am the Nexus One</a></div>
-    <button onclick="someFunction()">Button Text</button>
   </center></body>
 </html>

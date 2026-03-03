@@ -60,7 +60,7 @@ a:link {
 
 .editor-bar {
   width: 70%;
-  margin: 0 auto 12px;
+  margin: 18px auto 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -123,10 +123,47 @@ a:link {
   color: #3c5673;
 }
 
+.icon-search-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.icon-search-row input {
+  border: 1px solid #7da0c5;
+  border-radius: 8px;
+  padding: 7px 9px;
+  font-size: 13px;
+}
+
+.icon-search-row select {
+  border: 1px solid #7da0c5;
+  border-radius: 8px;
+  padding: 7px 9px;
+  font-size: 13px;
+  background: #fff;
+}
+
+.icon-search-status {
+  font-size: 12px;
+  color: #39597a;
+}
+
 .icon-choices {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 8px;
+}
+
+.icon-empty {
+  grid-column: 1 / -1;
+  padding: 10px;
+  border: 1px dashed #90a9c3;
+  border-radius: 8px;
+  color: #365779;
+  background: #edf5ff;
+  font-size: 13px;
 }
 
 .icon-choice {
@@ -156,6 +193,14 @@ a:link {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+  align-items: center;
+}
+
+.icon-chooser-link {
+  margin-right: auto;
+  font-size: 12px;
+  color: #1f4975;
+  text-decoration: underline;
 }
 
 

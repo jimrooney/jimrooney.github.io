@@ -56,15 +56,9 @@
         gap: 10px;
       }
 
-      .toolbar-custom {
-        display: none;
-        grid-template-columns: 1fr 2fr;
-        gap: 10px;
-      }
-
       .toolbar-live {
         display: grid;
-        grid-template-columns: auto 1fr;
+        grid-template-columns: auto 1fr auto auto auto;
         gap: 10px;
         align-items: center;
       }
@@ -72,6 +66,13 @@
       .status {
         font-size: 13px;
         color: var(--muted);
+      }
+
+      .pager {
+        font-size: 13px;
+        color: var(--muted);
+        min-width: 98px;
+        text-align: center;
       }
 
       input,
@@ -177,34 +178,25 @@
 
       <section class="panel toolbar">
         <select id="source" aria-label="Icon source">
-          <option value="lucide">Lucide (outline)</option>
-          <option value="mdi">Material Design Icons (filled)</option>
-          <option value="heroicons-solid">Heroicons Solid (filled)</option>
+          <option value="mdi">Material Design Icons (mdi)</option>
+          <option value="lucide">Lucide</option>
+          <option value="heroicons-solid">Heroicons Solid</option>
           <option value="heroicons-outline">Heroicons Outline</option>
+          <option value="tabler">Tabler</option>
           <option value="fa6-solid">Font Awesome 6 Solid</option>
-          <option value="fa6-regular">Font Awesome 6 Regular</option>
-          <option value="fa6-brands">Font Awesome 6 Brands</option>
           <option value="material-symbols">Material Symbols</option>
           <option value="ion">Ionicons</option>
-          <option value="solar-bold">Solar Bold</option>
-          <option value="tabler">Tabler (outline)</option>
-          <option value="custom">Custom Prefix</option>
+          <option value="ph">Phosphor (ph)</option>
         </select>
         <input id="search" type="text" placeholder="Search icons, e.g. plane, mail, clock" />
         <button id="clearBtn" type="button">Clear</button>
       </section>
-      <section id="customRow" class="panel toolbar-custom">
-        <input id="customPrefix" type="text" value="mdi" placeholder="Iconify prefix, e.g. mdi" />
-        <input
-          id="customNames"
-          type="text"
-          value="airplane,email,clock,calendar,home,map,compass,phone,camera,user,users"
-          placeholder="Comma-separated icon names"
-        />
-      </section>
       <section class="panel toolbar-live">
+        <button id="prevPage" type="button">Previous</button>
         <label><input id="fullSet" type="checkbox" checked /> Use full icon library for selected source</label>
         <div id="status" class="status"></div>
+        <div id="pageInfo" class="pager">Page 1 / 1</div>
+        <button id="nextPage" type="button">Next</button>
       </section>
 
       <section id="grid" class="panel grid"></section>
@@ -212,12 +204,12 @@
       <section class="panel">
         <div class="row">
           <div class="label">Icon ID</div>
-          <div id="idOut" class="out">lucide:plane</div>
+          <div id="idOut" class="out">mdi:airplane</div>
           <button id="copyId" type="button">Copy ID</button>
         </div>
         <div class="row">
           <div class="label">Icon URL</div>
-          <div id="urlOut" class="out">https://api.iconify.design/lucide:plane.svg</div>
+          <div id="urlOut" class="out">https://api.iconify.design/mdi:airplane.svg</div>
           <button id="copyUrl" type="button">Copy URL</button>
         </div>
       </section>
@@ -225,99 +217,60 @@
 
     <script>
       const iconSets = {
-        lucide: {
-          label: "Lucide (outline)",
-          names: [
-            "plane",
-            "plane-landing",
-            "plane-takeoff",
-            "map",
-            "compass",
-            "wind",
-            "cloud-sun",
-            "sun",
-            "moon",
-            "calendar",
-            "clock-3",
-            "mail",
-            "message-square",
-            "phone",
-            "globe",
-            "camera",
-            "video",
-            "file-text",
-            "clipboard-list",
-            "book-open",
-            "building-2",
-            "home",
-            "settings",
-            "wrench",
-            "hard-drive",
-            "folder",
-            "link",
-            "shield-check",
-            "user",
-            "users"
-          ]
-        },
         mdi: {
-          label: "Material Design Icons (filled)",
+          label: "Material Design Icons (mdi)",
           names: [
             "airplane",
-            "airplane-landing",
-            "airplane-takeoff",
             "map",
             "compass",
             "weather-windy",
-            "weather-partly-cloudy",
-            "calendar",
             "clock",
+            "calendar",
             "email",
-            "message",
             "phone",
-            "earth",
             "camera",
-            "file-document",
-            "clipboard-list",
-            "book-open",
-            "home",
-            "cog",
-            "wrench",
             "folder",
             "link-variant",
             "shield-check",
             "account",
-            "account-group"
+            "account-group",
+            "home",
+            "cog"
+          ]
+        },
+        lucide: {
+          label: "Lucide",
+          names: [
+            "plane",
+            "map",
+            "compass",
+            "wind",
+            "calendar",
+            "clock-3",
+            "mail",
+            "phone",
+            "camera",
+            "folder",
+            "link",
+            "shield-check",
+            "user"
           ]
         },
         "heroicons-solid": {
-          label: "Heroicons Solid (filled)",
+          label: "Heroicons Solid",
           names: [
             "paper-airplane",
             "map",
             "compass",
-            "cloud",
-            "sun",
-            "moon",
-            "calendar-days",
             "clock",
+            "calendar-days",
             "envelope",
-            "chat-bubble-left-right",
             "phone",
-            "globe-alt",
             "camera",
-            "document-text",
-            "clipboard-document-list",
-            "book-open",
-            "home",
-            "cog-6-tooth",
-            "wrench-screwdriver",
             "folder",
             "link",
             "shield-check",
-            "user",
-            "users",
-            "briefcase"
+            "user"
           ]
         },
         "heroicons-outline": {
@@ -326,28 +279,32 @@
             "paper-airplane",
             "map",
             "compass",
-            "cloud",
-            "sun",
-            "moon",
-            "calendar-days",
             "clock",
+            "calendar-days",
             "envelope",
-            "chat-bubble-left-right",
             "phone",
-            "globe-alt",
             "camera",
-            "document-text",
-            "clipboard-document-list",
-            "book-open",
-            "home",
-            "cog-6-tooth",
-            "wrench-screwdriver",
             "folder",
             "link",
             "shield-check",
-            "user",
-            "users",
-            "briefcase"
+            "user"
+          ]
+        },
+        tabler: {
+          label: "Tabler",
+          names: [
+            "plane",
+            "map",
+            "compass",
+            "wind",
+            "clock",
+            "calendar",
+            "mail",
+            "phone",
+            "camera",
+            "folder",
+            "link",
+            "shield-check"
           ]
         },
         "fa6-solid": {
@@ -356,91 +313,32 @@
             "plane",
             "map-location-dot",
             "compass",
-            "wind",
-            "cloud-sun",
-            "calendar-days",
             "clock",
+            "calendar-days",
             "envelope",
-            "message",
             "phone",
-            "globe",
             "camera",
-            "file-lines",
-            "clipboard-list",
-            "book-open",
-            "house",
-            "gear",
-            "wrench",
             "folder",
             "link",
             "shield-halved",
-            "user",
-            "users",
-            "briefcase"
-          ]
-        },
-        "fa6-regular": {
-          label: "Font Awesome 6 Regular",
-          names: [
-            "calendar",
-            "clock",
-            "envelope",
-            "message",
-            "folder",
-            "file-lines",
-            "clipboard",
-            "address-book",
-            "circle-user",
-            "bell",
-            "star",
-            "bookmark"
-          ]
-        },
-        "fa6-brands": {
-          label: "Font Awesome 6 Brands",
-          names: [
-            "github",
-            "google",
-            "microsoft",
-            "apple",
-            "android",
-            "x-twitter",
-            "youtube",
-            "facebook",
-            "instagram",
-            "whatsapp",
-            "slack",
-            "docker"
+            "user"
           ]
         },
         "material-symbols": {
           label: "Material Symbols",
           names: [
             "flight",
-            "flight_takeoff",
-            "flight_land",
             "map",
             "explore",
-            "air",
-            "partly_cloudy_day",
-            "calendar_month",
             "schedule",
+            "calendar_month",
             "mail",
-            "chat",
             "call",
-            "language",
             "photo_camera",
-            "description",
-            "checklist",
-            "menu_book",
-            "home",
-            "settings",
-            "build",
             "folder",
             "link",
             "verified_user",
-            "person",
-            "groups"
+            "person"
           ]
         },
         ion: {
@@ -449,94 +347,43 @@
             "airplane",
             "map",
             "compass",
-            "cloud",
-            "sunny",
-            "moon",
-            "calendar",
             "time",
+            "calendar",
             "mail",
-            "chatbubble",
             "call",
-            "globe",
             "camera",
-            "document-text",
-            "clipboard",
-            "book",
-            "home",
-            "settings",
-            "construct",
             "folder",
             "link",
             "shield-checkmark",
-            "person",
-            "people"
+            "person"
           ]
         },
-        "solar-bold": {
-          label: "Solar Bold",
+        ph: {
+          label: "Phosphor (ph)",
           names: [
-            "airplane-square",
-            "map-point",
-            "compass",
-            "cloud-sun-2",
+            "airplane-in-flight-bold",
+            "map-pin-bold",
+            "compass-bold",
+            "clock-bold",
             "calendar",
-            "clock-circle",
-            "letter",
-            "chat-round",
-            "phone-calling-rounded",
-            "global",
-            "camera",
-            "document-text",
-            "clipboard-text",
-            "book-bookmark",
-            "home-angle",
-            "settings-bold",
-            "folder-with-files",
-            "link-round",
-            "shield-check",
-            "user",
-            "users-group-rounded"
-          ]
-        },
-        tabler: {
-          label: "Tabler (outline)",
-          names: [
-            "plane",
-            "plane-arrival",
-            "plane-departure",
-            "map",
-            "compass",
-            "wind",
-            "cloud-sun",
-            "calendar",
-            "clock",
-            "mail",
-            "message",
-            "phone",
-            "world",
-            "camera",
-            "file-text",
-            "clipboard-list",
-            "book",
-            "home",
-            "settings",
-            "tool",
-            "folder",
-            "link",
-            "shield-check",
-            "user",
-            "users"
+            "envelope-simple-bold",
+            "phone-bold",
+            "camera-bold",
+            "folder-bold",
+            "link-bold",
+            "shield-check-bold",
+            "user-bold"
           ]
         }
       };
 
       const grid = document.getElementById("grid");
       const source = document.getElementById("source");
-      const customRow = document.getElementById("customRow");
-      const customPrefix = document.getElementById("customPrefix");
-      const customNames = document.getElementById("customNames");
       const fullSet = document.getElementById("fullSet");
       const status = document.getElementById("status");
+      const prevPage = document.getElementById("prevPage");
+      const nextPage = document.getElementById("nextPage");
+      const pageInfo = document.getElementById("pageInfo");
       const search = document.getElementById("search");
       const clearBtn = document.getElementById("clearBtn");
       const idOut = document.getElementById("idOut");
@@ -544,10 +391,11 @@
       const copyId = document.getElementById("copyId");
       const copyUrl = document.getElementById("copyUrl");
 
-      let selectedSource = "lucide";
-      let selectedName = "plane";
+      let selectedSource = "mdi";
+      let selectedName = "airplane";
       let renderToken = 0;
-      const maxCards = 120;
+      const pageSize = 120;
+      let currentPage = 0;
       const collectionCache = new Map();
 
       function iconId(prefix, name) {
@@ -559,20 +407,10 @@
       }
 
       function currentPrefix() {
-        if (selectedSource === "custom") {
-          const prefix = customPrefix.value.trim();
-          return prefix || "mdi";
-        }
         return selectedSource;
       }
 
       function currentNames() {
-        if (selectedSource === "custom") {
-          return customNames.value
-            .split(",")
-            .map((n) => n.trim())
-            .filter(Boolean);
-        }
         return iconSets[selectedSource].names;
       }
 
@@ -635,10 +473,18 @@
         if (!names.includes(selectedName)) {
           selectedName = names[0];
         }
-        const list = names.filter((n) => n.includes(q)).slice(0, maxCards);
+        const filtered = names.filter((n) => n.includes(q));
+        const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+        if (currentPage >= totalPages) currentPage = totalPages - 1;
+        if (currentPage < 0) currentPage = 0;
+        const start = currentPage * pageSize;
+        const list = filtered.slice(start, start + pageSize);
         grid.innerHTML = "";
         idOut.textContent = selectedId();
         urlOut.textContent = iconUrl(selectedId());
+        pageInfo.textContent = `Page ${currentPage + 1} / ${totalPages}`;
+        prevPage.disabled = currentPage === 0;
+        nextPage.disabled = currentPage >= totalPages - 1;
         if (!list.length) {
           grid.innerHTML = "<div class='name'>No matches. Try a different search term.</div>";
           return;
@@ -670,29 +516,35 @@
 
       source.addEventListener("change", (e) => {
         selectedSource = e.target.value;
-        customRow.style.display = selectedSource === "custom" ? "grid" : "none";
         selectedName = currentNames()[0] || "";
+        currentPage = 0;
         setSelection(selectedName);
         render(search.value);
       });
-      customPrefix.addEventListener("input", () => {
-        collectionCache.delete(currentPrefix());
+      fullSet.addEventListener("change", () => {
+        currentPage = 0;
         render(search.value);
       });
-      customNames.addEventListener("input", () => {
-        selectedName = currentNames()[0] || "";
-        render(search.value);
+      search.addEventListener("input", (e) => {
+        currentPage = 0;
+        render(e.target.value);
       });
-      fullSet.addEventListener("change", () => render(search.value));
-      search.addEventListener("input", (e) => render(e.target.value));
       clearBtn.addEventListener("click", () => {
         search.value = "";
+        currentPage = 0;
         render("");
+      });
+      prevPage.addEventListener("click", () => {
+        currentPage -= 1;
+        render(search.value);
+      });
+      nextPage.addEventListener("click", () => {
+        currentPage += 1;
+        render(search.value);
       });
       copyId.addEventListener("click", () => copyText(selectedId(), copyId, "Copied"));
       copyUrl.addEventListener("click", () => copyText(iconUrl(selectedId()), copyUrl, "Copied"));
 
-      customRow.style.display = "none";
       setSelection(selectedName);
       render();
     </script>
