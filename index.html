@@ -16,7 +16,7 @@
     <div id="LinkContainer"></div>
     <div class="editor-bar">
       <button id="editModeToggle" class="editor-btn" type="button">Edit Mode: Off</button>
-      <button id="editorConfigBtn" class="editor-btn" type="button">Configure Save API</button>
+      <button id="editorConfigBtn" class="editor-btn" type="button" hidden>Configure Save API</button>
       <span id="editorStatus" class="editor-status"></span>
     </div>
     <div id="iconModal" class="icon-modal hidden" role="dialog" aria-modal="true" aria-labelledby="iconModalTitle">
@@ -224,6 +224,8 @@
       let iconSearchToken = 0
       let selectedIconSet = "mdi"
 
+      editorConfigBtn.hidden = !editorState.enabled
+
       const setStatus = (text) => {
         statusEl.textContent = text
       }
@@ -408,16 +410,48 @@
       root.onload = (data) => {
         console.log("Root loaded: ", data)
         const rows = data.rows || []
-        linksRoot.innerHTML = `<div class="links"></div>`
-        const linksEl = linksRoot.querySelector(".links")
-        rows.toReversed().forEach((row, idx) => {
+        linksRoot.innerHTML = ""
+        const parseSectionBreak = (htmlContent) => {
+          const raw = String(htmlContent ?? "")
+          if (!/<hr\b/i.test(raw)) return null
+
+          const probe = document.createElement("div")
+          probe.innerHTML = raw
+          const hr = probe.querySelector("hr")
+          if (!hr) return null
+
+          const attrTitle = hr.getAttribute("data-title") || hr.getAttribute("title") || ""
+          hr.remove()
+          const textTitle = probe.textContent?.trim() || ""
+          const title = (attrTitle || textTitle).trim()
+          return { title }
+        }
+
+        const createSection = (title = "") => {
+          const section = document.createElement("div")
+          section.className = "links-section"
+          const safeTitle = esc(title)
+          section.innerHTML = safeTitle
+            ? `<div class="section-title">${safeTitle}</div><div class="links"></div>`
+            : `<div class="links"></div>`
+          linksRoot.appendChild(section)
+          return section.querySelector(".links")
+        }
+
+        let linksEl = createSection()
+        rows.forEach((row, idx) => {
           const label = row.c[0]?.v
           const content = row.c[1]?.v
           const icon = row.c[2]?.v
-          const sheetRow = rows.length - idx
+          const sheetRow = idx + 1
           if (!label || !content) return
           if (label === "HTML") {
-            linksEl.insertAdjacentHTML("afterbegin", `${content}`)
+            const sectionBreak = parseSectionBreak(content)
+            if (sectionBreak) {
+              linksEl = createSection(sectionBreak.title)
+              return
+            }
+            linksEl.insertAdjacentHTML("beforeend", `${content}`)
           } else {
             const iconMarkup = iconMarkupFor(icon, label)
             const hasIcon = iconMarkup.length > 0
@@ -425,9 +459,17 @@
             const anchorStyle = hasIcon ? iconAnchorStyle : ""
             const anchorText = hasIcon ? iconMarkup : esc(label)
             linksEl.insertAdjacentHTML(
-              "afterbegin",
+              "beforeend",
               `<span class="Nav"><a class="${anchorClass}" style="${anchorStyle}" href="${esc(content)}" title="${esc(label)}" aria-label="${esc(label)}" data-sheet-row="${sheetRow}" data-label="${esc(label)}" data-icon="${esc(icon || "")}">${anchorText}</a><button type="button" class="delete-link-btn" title="Delete link" aria-label="Delete link" data-sheet-row="${sheetRow}">-</button></span>`
             )
+          }
+        })
+
+        Array.from(linksRoot.querySelectorAll(".links-section")).forEach((section) => {
+          const linksInSection = section.querySelector(".links")
+          const titleEl = section.querySelector(".section-title")
+          if (!linksInSection || (linksInSection.children.length === 0 && !titleEl)) {
+            section.remove()
           }
         })
       }
@@ -436,7 +478,7 @@
         editorState.enabled = !editorState.enabled
         document.body.classList.toggle("edit-mode", editorState.enabled)
         editModeToggle.textContent = editorState.enabled ? "Edit Mode: On" : "Edit Mode: Off"
-        setStatus(editorState.enabled ? "Click a button to edit icon, or use the '-' circle to delete row." : "")
+        editorConfigBtn.hidden = !editorState.enabled
       })
 
       editorConfigBtn.addEventListener("click", configureEditorApi)

@@ -103,7 +103,7 @@ function jsonResponse(payload) {
    - Execute as: `Me`
    - Who has access: `Anyone`
 5. Copy the Web App URL.
-6. On your site, click `Configure Save API` and paste:
+6. On your site, enable `Edit Mode`, then click `Configure Save API` and paste:
    - Web App URL
    - same shared token
 

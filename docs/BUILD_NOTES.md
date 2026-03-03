@@ -1,5 +1,24 @@
 # Build Notes
 
+## 2026-03-04
+
+### Section Containers Replacing Raw `<hr>` Lines
+- Reworked link rendering to create bordered section containers instead of rendering raw separator lines.
+- Sheet `HTML` rows containing `<hr>` now start a new section.
+- Empty sections are removed automatically unless they contain a section title.
+
+### Titled Section Bars
+- Added section title parsing for `<hr>` separator rows.
+- Supported title sources:
+  - `data-title` attribute on `<hr>`
+  - `title` attribute on `<hr>`
+  - fallback text in the same HTML cell
+- Added a full-width styled title bar (`.section-title`) with a compact, darker blue look.
+
+### Edit Mode UI Trim
+- `Configure Save API` button now appears only while edit mode is on.
+- Removed instructional status text shown on edit mode toggle.
+
 ## 2026-03-03
 
 ### Navbar Link Click Area Fix

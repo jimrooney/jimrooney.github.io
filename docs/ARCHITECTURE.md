@@ -12,6 +12,14 @@
 - Column B: `href`
 - Column C: `icon` (optional)
 
+### Section Break Rows
+- Rows with `label === "HTML"` and `<hr>` in column B are treated as section breaks.
+- Optional section title can be supplied as:
+  - `<hr data-title="Favorites">`
+  - `<hr title="Favorites">`
+  - text in the same HTML cell alongside `<hr>` (fallback)
+- Renderer groups links into bordered `.links-section` containers, one per section break.
+
 ### Icon Column Behavior
 - Empty C: render text button.
 - Non-empty C:
@@ -28,6 +36,7 @@
 
 ## Edit Mode Workflow
 - Edit mode is toggled client-side in `index.html`.
+- `Configure Save API` button is visible only while edit mode is enabled.
 - In edit mode:
   - clicking a link opens an icon modal
   - selecting an icon posts `action: "set_icon"` to Apps Script
