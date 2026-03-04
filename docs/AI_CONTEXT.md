@@ -21,9 +21,10 @@ When modifying this project:
 - Do not introduce frameworks or build tools unless requested
 - This site must remain compatible with GitHub Pages static hosting
 
-## Publish Workflow
+## Publish Workflow (Agent Rule)
 
-When the user says **publish**, the AI should:
+Agent instruction:  
+When the user says **publish**, execute the following workflow exactly:
 
 1. Update BUILD_NOTES.md if any changes were made
 2. Update ARCHITECTURE.md if architecture changed

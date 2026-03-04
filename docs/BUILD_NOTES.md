@@ -1,5 +1,11 @@
 # Build Notes
 
+## 2026-03-05
+
+### Publish Workflow Clarification
+- Updated `AI_CONTEXT.md` to mark publish handling as an explicit agent rule.
+- Clarified that when the user says `publish`, the agent should execute the documented workflow exactly.
+
 ## 2026-03-04
 
 ### Section Containers Replacing Raw `<hr>` Lines
