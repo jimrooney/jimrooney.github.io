@@ -40,6 +40,8 @@
 - `Configure Save API` button is visible only while edit mode is enabled.
 - Clicking outside tiles/controls exits edit mode.
 - In edit mode:
+  - add-button flow posts `action: "add_link"` to append a new link row
+  - untitled sections show `+ Title Bar`, which posts `set_section_title` or `insert_section_break`
   - drag-and-drop on link tiles reorders rows in the sheet via `action: "move_row"`
   - clicking a link opens an icon modal
   - selecting an icon posts `action: "set_icon"` to Apps Script
@@ -49,9 +51,12 @@
 ## Apps Script Contract
 - Frontend sends plain text JSON body to avoid browser preflight issues.
 - Supported actions:
+  - `add_link`: appends a new link row (`label`, `href`, optional `icon`)
   - `set_icon`: writes icon value to column C
   - `delete_row`: deletes a row from the target sheet
   - `move_row`: moves one row before another target row
+  - `set_section_title`: updates an existing section-break HTML row
+  - `insert_section_break`: inserts a titled `<hr>` section-break row
 - Deployment and server code are documented in `docs/EDIT_MODE_SETUP.md`.
 
 ## Utility Page
@@ -59,6 +64,12 @@
 - Supports the same icon sets as in-page modal:
   - `mdi`, `lucide`, `heroicons-solid`, `heroicons-outline`, `tabler`, `fa6-solid`, `material-symbols`, `ion`, `ph`
 - Supports search and full library browsing with pagination.
+
+## Publish Workflow
+- In this project, `publish` means:
+  - update docs for the completed changes
+  - commit changes to git
+  - push to GitHub (`origin/master`)
 
 ## Visual Direction
 - Current homepage styling uses the Option A aviation ops-deck direction:

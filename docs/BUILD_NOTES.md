@@ -35,6 +35,18 @@
 - Added header-specific image background support using `images/hud-title-bg.png`.
 - Tuned the global ring treatment back to the flatter version while keeping the new HUD palette and component styling.
 
+### Edit Mode Content Creation
+- Added `Add Button` control (visible in edit mode) to append new links to the sheet.
+- Added `+ Title Bar` control for untitled sections to create/update section titles in the sheet.
+- Added Apps Script action support docs for:
+  - `add_link`
+  - `set_section_title`
+  - `insert_section_break`
+
+### Android/Touch Reorder Support
+- Added pointer-based touch drag reorder flow for edit mode to support browsers where HTML5 drag/drop is unreliable (for example Android Brave).
+- Kept desktop drag/drop behavior intact.
+
 ## 2026-03-03
 
 ### Navbar Link Click Area Fix

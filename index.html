@@ -17,6 +17,7 @@
     <div class="editor-bar">
       <button id="editModeToggle" class="editor-btn" type="button">Edit Mode: Off</button>
       <button id="editorConfigBtn" class="editor-btn" type="button" hidden>Configure Save API</button>
+      <button id="addLinkBtn" class="editor-btn" type="button" hidden>Add Button</button>
       <span id="editorStatus" class="editor-status"></span>
     </div>
     <div id="iconModal" class="icon-modal hidden" role="dialog" aria-modal="true" aria-labelledby="iconModalTitle">
@@ -212,6 +213,7 @@
       const linksRoot = document.getElementById("LinkContainer")
       const editModeToggle = document.getElementById("editModeToggle")
       const editorConfigBtn = document.getElementById("editorConfigBtn")
+      const addLinkBtn = document.getElementById("addLinkBtn")
       const iconModal = document.getElementById("iconModal")
       const iconModalSub = document.getElementById("iconModalSub")
       const iconSetSelect = document.getElementById("iconSetSelect")
@@ -229,10 +231,17 @@
       let longPressTimer = null
       let longPressStartX = 0
       let longPressStartY = 0
+      let touchDragPointerId = null
+      let touchDraggedNav = null
+      let touchDragStarted = false
+      let touchDragStartX = 0
+      let touchDragStartY = 0
       const LONG_PRESS_MS = 550
       const LONG_PRESS_MOVE_THRESHOLD = 12
+      const TOUCH_DRAG_THRESHOLD = 10
 
       editorConfigBtn.hidden = !editorState.enabled
+      addLinkBtn.hidden = !editorState.enabled
 
       const setStatus = (text) => {
         statusEl.textContent = text
@@ -264,6 +273,7 @@
         document.body.classList.toggle("edit-mode", editorState.enabled)
         editModeToggle.textContent = editorState.enabled ? "Edit Mode: On" : "Edit Mode: Off"
         editorConfigBtn.hidden = !editorState.enabled
+        addLinkBtn.hidden = !editorState.enabled
         setDraggableState()
       }
 
@@ -333,6 +343,19 @@
         }
       }
 
+      const callEditorApi = async (payload) => {
+        const response = await fetch(editorState.endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        })
+        const data = await response.json()
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || `HTTP ${response.status}`)
+        }
+        return data
+      }
+
       const deleteLinkRow = async (anchor) => {
         if (!ensureEditorApiConfigured()) {
           setStatus("Delete cancelled. API not configured.")
@@ -388,19 +411,87 @@
 
         setStatus("Reordering links...")
         try {
-          const response = await fetch(editorState.endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify(payload)
-          })
-          const data = await response.json()
-          if (!response.ok || !data.ok) {
-            throw new Error(data.error || `HTTP ${response.status}`)
-          }
+          await callEditorApi(payload)
           setStatus("Link order updated.")
           reloadLinksFromSheet()
         } catch (error) {
           setStatus(`Reorder failed: ${error.message}`)
+        }
+      }
+
+      const addLinkRow = async () => {
+        if (!ensureEditorApiConfigured()) {
+          setStatus("Add cancelled. API not configured.")
+          return
+        }
+
+        const label = (prompt("Button label") || "").trim()
+        if (!label) return
+        const hrefRaw = (prompt("Button URL", "https://") || "").trim()
+        if (!hrefRaw) return
+        const href = /^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(hrefRaw) ? hrefRaw : `https://${hrefRaw}`
+        const icon = (prompt("Optional icon (ex: mdi:airplane). Leave blank for text button.", "") || "").trim()
+
+        const payload = {
+          action: "add_link",
+          token: editorState.token,
+          sheet: editorState.sheetName,
+          label: label,
+          href: href,
+          icon: icon
+        }
+
+        setStatus("Adding button...")
+        try {
+          await callEditorApi(payload)
+          setStatus("Button added.")
+          reloadLinksFromSheet()
+        } catch (error) {
+          setStatus(`Add failed: ${error.message}`)
+        }
+      }
+
+      const addSectionTitle = async (sectionEl) => {
+        if (!sectionEl || !editorState.enabled) return
+        if (!ensureEditorApiConfigured()) {
+          setStatus("Add title cancelled. API not configured.")
+          return
+        }
+
+        const title = (prompt("Section title") || "").trim()
+        if (!title) return
+
+        const breakRow = Number(sectionEl.dataset.breakRow || 0)
+        const firstAnchor = sectionEl.querySelector("a.BlueBox")
+        const firstRow = Number(firstAnchor?.dataset.sheetRow || 0)
+        if (!breakRow && !firstRow) {
+          setStatus("Could not determine where to insert title.")
+          return
+        }
+
+        const payload = breakRow > 0
+          ? {
+              action: "set_section_title",
+              token: editorState.token,
+              sheet: editorState.sheetName,
+              row: breakRow,
+              title: title
+            }
+          : {
+              action: "insert_section_break",
+              token: editorState.token,
+              sheet: editorState.sheetName,
+              targetRow: firstRow,
+              title: title
+            }
+
+        setStatus("Saving section title...")
+        try {
+          await callEditorApi(payload)
+          setStatus("Section title saved.")
+          reloadLinksFromSheet()
+        } catch (error) {
+          setStatus(`Save failed: ${error.message}`)
         }
       }
 
@@ -498,13 +589,16 @@
           return { title }
         }
 
-        const createSection = (title = "") => {
+        const createSection = (title = "", breakRow = 0) => {
           const section = document.createElement("div")
           section.className = "links-section"
+          section.dataset.breakRow = String(breakRow || 0)
           const safeTitle = esc(title)
-          section.innerHTML = safeTitle
-            ? `<div class="section-title">${safeTitle}</div><div class="links"></div>`
-            : `<div class="links"></div>`
+          if (safeTitle) {
+            section.innerHTML = `<div class="section-title">${safeTitle}</div><div class="links"></div>`
+          } else {
+            section.innerHTML = `<button type="button" class="add-section-title-btn editor-btn">+ Title Bar</button><div class="links"></div>`
+          }
           linksRoot.appendChild(section)
           return section.querySelector(".links")
         }
@@ -519,7 +613,7 @@
           if (label === "HTML") {
             const sectionBreak = parseSectionBreak(content)
             if (sectionBreak) {
-              linksEl = createSection(sectionBreak.title)
+              linksEl = createSection(sectionBreak.title, sheetRow)
               return
             }
             linksEl.insertAdjacentHTML("beforeend", `${content}`)
@@ -551,6 +645,7 @@
       })
 
       editorConfigBtn.addEventListener("click", configureEditorApi)
+      addLinkBtn.addEventListener("click", addLinkRow)
       iconCancelBtn.addEventListener("click", closeModal)
       iconClearBtn.addEventListener("click", async () => {
         if (!editorState.targetAnchor) return
@@ -585,6 +680,15 @@
           return
         }
 
+        const addTitleBtn = event.target.closest(".add-section-title-btn")
+        if (addTitleBtn && editorState.enabled) {
+          event.preventDefault()
+          event.stopPropagation()
+          const section = addTitleBtn.closest(".links-section")
+          if (section) addSectionTitle(section)
+          return
+        }
+
         const deleteBtn = event.target.closest(".delete-link-btn")
         if (deleteBtn && editorState.enabled) {
           event.preventDefault()
@@ -602,7 +706,18 @@
       })
 
       linksRoot.addEventListener("pointerdown", (event) => {
-        if (editorState.enabled) return
+        if (editorState.enabled) {
+          const nav = event.target.closest(".Nav")
+          if (!nav) return
+          if (event.pointerType !== "touch" && event.pointerType !== "pen") return
+          touchDragPointerId = event.pointerId
+          touchDraggedNav = nav
+          touchDragStartX = event.clientX
+          touchDragStartY = event.clientY
+          touchDragStarted = false
+          return
+        }
+
         const anchor = event.target.closest("a.BlueBox")
         if (!anchor) return
         if (event.pointerType === "mouse" && event.button !== 0) return
@@ -616,6 +731,28 @@
       })
 
       linksRoot.addEventListener("pointermove", (event) => {
+        if (editorState.enabled && touchDraggedNav && event.pointerId === touchDragPointerId) {
+          const movedX = Math.abs(event.clientX - touchDragStartX)
+          const movedY = Math.abs(event.clientY - touchDragStartY)
+          if (!touchDragStarted && (movedX > TOUCH_DRAG_THRESHOLD || movedY > TOUCH_DRAG_THRESHOLD)) {
+            touchDragStarted = true
+            touchDraggedNav.classList.add("dragging")
+          }
+          if (touchDragStarted) {
+            event.preventDefault()
+            const hoverEl = document.elementFromPoint(event.clientX, event.clientY)
+            const hoverNav = hoverEl ? hoverEl.closest(".Nav") : null
+            if (hoverNav && hoverNav !== touchDraggedNav) {
+              if (dropTargetNav && dropTargetNav !== hoverNav) {
+                dropTargetNav.classList.remove("drop-target")
+              }
+              dropTargetNav = hoverNav
+              hoverNav.classList.add("drop-target")
+            }
+          }
+          return
+        }
+
         if (!longPressTimer) return
         const movedX = Math.abs(event.clientX - longPressStartX)
         const movedY = Math.abs(event.clientY - longPressStartY)
@@ -627,8 +764,38 @@
       const cancelLongPress = () => {
         clearLongPressTimer()
       }
-      linksRoot.addEventListener("pointerup", cancelLongPress)
-      linksRoot.addEventListener("pointercancel", cancelLongPress)
+      const clearTouchDrag = () => {
+        if (touchDraggedNav) {
+          touchDraggedNav.classList.remove("dragging")
+        }
+        if (dropTargetNav) {
+          dropTargetNav.classList.remove("drop-target")
+        }
+        touchDragPointerId = null
+        touchDraggedNav = null
+        touchDragStarted = false
+      }
+
+      linksRoot.addEventListener("pointerup", (event) => {
+        cancelLongPress()
+        if (!editorState.enabled || !touchDraggedNav || event.pointerId !== touchDragPointerId) return
+        if (touchDragStarted && dropTargetNav && dropTargetNav !== touchDraggedNav) {
+          const draggedAnchor = touchDraggedNav.querySelector("a.BlueBox")
+          const nextNav = dropTargetNav.nextElementSibling
+          const targetAnchor = nextNav?.matches(".Nav")
+            ? nextNav.querySelector("a.BlueBox")
+            : dropTargetNav.querySelector("a.BlueBox")
+          const fromRow = Number(draggedAnchor?.dataset.sheetRow || 0)
+          const targetRow = Number(targetAnchor?.dataset.sheetRow || 0)
+          suppressEditClickUntil = Date.now() + 450
+          moveLinkRow(fromRow, targetRow)
+        }
+        clearTouchDrag()
+      })
+      linksRoot.addEventListener("pointercancel", () => {
+        cancelLongPress()
+        clearTouchDrag()
+      })
       linksRoot.addEventListener("pointerleave", cancelLongPress)
 
       linksRoot.addEventListener("dragstart", (event) => {

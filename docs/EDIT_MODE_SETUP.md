@@ -45,6 +45,43 @@ The frontend posts JSON as a plain text body (`Content-Type: text/plain`) to avo
 
 - `move_row` moves `row` so it lands immediately before `targetRow`.
 
+- For adding a new button row, payload is:
+
+```json
+{
+  "action": "add_link",
+  "token": "your-shared-token",
+  "sheet": "Links",
+  "label": "Weather",
+  "href": "https://windy.com",
+  "icon": "mdi:weather-windy"
+}
+```
+
+- For adding/updating a section title on an existing `<hr>` row:
+
+```json
+{
+  "action": "set_section_title",
+  "token": "your-shared-token",
+  "sheet": "Links",
+  "row": 15,
+  "title": "Planning"
+}
+```
+
+- For inserting a new titled section break before a row:
+
+```json
+{
+  "action": "insert_section_break",
+  "token": "your-shared-token",
+  "sheet": "Links",
+  "targetRow": 6,
+  "title": "Planning"
+}
+```
+
 ## Apps Script `Code.gs`
 
 Use this in your script project attached to the spreadsheet:
@@ -68,16 +105,38 @@ function doPost(e) {
     const action = String(body.action || "set_icon");
     const sheetName = String(body.sheet || "Links");
     const row = Number(body.row);
+    const targetRow = Number(body.targetRow);
+    const title = String(body.title || "").trim();
+    const label = String(body.label || "").trim();
+    const href = String(body.href || "").trim();
     const icon = String(body.icon || "");
-
-    if (!row || row < 1) {
-      return jsonResponse({ ok: false, error: "Invalid row" });
-    }
 
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(sheetName);
     if (!sheet) {
       return jsonResponse({ ok: false, error: "Sheet not found" });
+    }
+
+    if (action === "add_link") {
+      if (!label || !href) {
+        return jsonResponse({ ok: false, error: "label and href are required" });
+      }
+      sheet.appendRow([label, href, icon || ""]);
+      return jsonResponse({ ok: true, action: action });
+    }
+
+    if (action === "insert_section_break") {
+      if (!targetRow || targetRow < 1) {
+        return jsonResponse({ ok: false, error: "Invalid targetRow" });
+      }
+      const hrHtml = sectionBreakHtml(title);
+      sheet.insertRowsBefore(targetRow, 1);
+      sheet.getRange(targetRow, 1, 1, 3).setValues([["HTML", hrHtml, ""]]);
+      return jsonResponse({ ok: true, action: action, targetRow: targetRow });
+    }
+
+    if (!row || row < 1) {
+      return jsonResponse({ ok: false, error: "Invalid row" });
     }
 
     if (action === "delete_row") {
@@ -89,7 +148,6 @@ function doPost(e) {
     }
 
     if (action === "move_row") {
-      const targetRow = Number(body.targetRow);
       if (!targetRow || targetRow < 1) {
         return jsonResponse({ ok: false, error: "Invalid targetRow" });
       }
@@ -100,6 +158,15 @@ function doPost(e) {
         moveRowBefore(sheet, row, targetRow);
       }
       return jsonResponse({ ok: true, action: action, row: row, targetRow: targetRow });
+    }
+
+    if (action === "set_section_title") {
+      const currentLabel = String(sheet.getRange(row, 1).getValue() || "").trim();
+      if (currentLabel !== "HTML") {
+        return jsonResponse({ ok: false, error: "Row is not an HTML section break" });
+      }
+      sheet.getRange(row, 2).setValue(sectionBreakHtml(title));
+      return jsonResponse({ ok: true, action: action, row: row, title: title });
     }
 
     if (action === "set_icon") {
@@ -127,6 +194,13 @@ function moveRowBefore(sheet, fromRow, targetRow) {
   sheet.insertRowsBefore(insertAt, 1);
   sheet.getRange(insertAt, 1, 1, numCols).setValues(rowValues);
 }
+
+function sectionBreakHtml(title) {
+  const safeTitle = String(title || "").trim();
+  return safeTitle
+    ? `<hr data-title="${safeTitle}" />`
+    : "<hr />";
+}
 ```
 
 ## Deploy Steps
@@ -152,3 +226,5 @@ function moveRowBefore(sheet, fromRow, targetRow) {
   - setting/clearing column C icon values
   - deleting entire link rows from the sheet
   - drag/drop row reorder (requires `move_row` action in Apps Script)
+  - adding new link buttons (`add_link`)
+  - adding section titles (`set_section_title` / `insert_section_break`)

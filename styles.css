@@ -147,6 +147,17 @@ a:link {
   box-shadow: 0 0 16px rgba(47, 187, 239, 0.3);
 }
 
+.add-section-title-btn {
+  display: none;
+  margin: 0 auto 12px;
+  font-size: 13px;
+  padding: 6px 12px;
+}
+
+.edit-mode .links-section .add-section-title-btn {
+  display: block;
+}
+
 .links {
   width: 100%;
   display: flex;
@@ -208,6 +219,7 @@ a:link {
   width: clamp(18px, 6vw, 32px);
   height: clamp(18px, 6vw, 32px);
   display: block;
+  filter: brightness(0) invert(1);
 }
 
 .links .icon-label {
@@ -372,6 +384,7 @@ a:link {
 
 .edit-mode .Nav {
   cursor: grab;
+  touch-action: none;
 }
 
 .edit-mode .Nav.dragging {
