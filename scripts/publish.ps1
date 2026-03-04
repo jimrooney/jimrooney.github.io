@@ -24,7 +24,7 @@ if ([string]::IsNullOrWhiteSpace($branch)) {
 
 git push origin $branch
 
-$soundPath = "C:\Home\Jim\System\sounds\garage.wav"
+$soundPath = "C:\Home\Jim\System\sounds\gotthis.wav"
 if (Test-Path $soundPath) {
   $player = New-Object System.Media.SoundPlayer $soundPath
   $player.PlaySync()

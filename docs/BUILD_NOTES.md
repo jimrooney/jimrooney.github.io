@@ -4,8 +4,13 @@
 
 ### Publish Sound Automation
 - Added `scripts/publish.ps1` to standardize publish steps (commit + push).
-- Added publish-complete sound playback for `C:\Home\Jim\System\sounds\garage.wav`.
+- Added publish-complete sound playback for `C:\Home\Jim\System\sounds\gotthis.wav`.
 - Updated `AI_CONTEXT.md` so publish now explicitly requires running the script and playing the sound.
+
+### Sound Routing Update
+- Switched publish-complete sound from `garage.wav` to `gotthis.wav`.
+- Added agent rule: use `garage.wav` only when a blocking user prompt/decision is required.
+- Added agent rule: use `gotthis.wav` at completion checkpoints (task finished and validated, awaiting user direction).
 
 ### Publish Workflow Clarification
 - Updated `AI_CONTEXT.md` to mark publish handling as an explicit agent rule.
