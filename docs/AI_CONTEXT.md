@@ -28,8 +28,8 @@ When the user says **publish**, execute the following workflow exactly:
 
 1. Update BUILD_NOTES.md if any changes were made
 2. Update ARCHITECTURE.md if architecture changed
-3. Commit the current changes
-4. Push to GitHub
+3. Run `scripts/publish.ps1` to commit and push
+4. Ensure publish completion sound plays: `C:\Home\Jim\System\sounds\garage.wav`
 
 Prefer one clean commit per publish.
 

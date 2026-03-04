@@ -2,6 +2,11 @@
 
 ## 2026-03-05
 
+### Publish Sound Automation
+- Added `scripts/publish.ps1` to standardize publish steps (commit + push).
+- Added publish-complete sound playback for `C:\Home\Jim\System\sounds\garage.wav`.
+- Updated `AI_CONTEXT.md` so publish now explicitly requires running the script and playing the sound.
+
 ### Publish Workflow Clarification
 - Updated `AI_CONTEXT.md` to mark publish handling as an explicit agent rule.
 - Clarified that when the user says `publish`, the agent should execute the documented workflow exactly.
