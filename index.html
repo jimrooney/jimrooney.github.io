@@ -24,6 +24,16 @@
       <div class="icon-modal-content">
         <h3 id="iconModalTitle">Choose Icon</h3>
         <p id="iconModalSub" class="icon-modal-sub"></p>
+        <div class="icon-edit-row">
+          <label for="iconLabelInput">Label</label>
+          <input id="iconLabelInput" type="text" placeholder="Button label" />
+          <button id="iconSaveLabelBtn" class="editor-btn" type="button">Save Label</button>
+        </div>
+        <div class="icon-edit-row">
+          <label for="iconHrefInput">Link</label>
+          <input id="iconHrefInput" type="text" placeholder="https://example.com" />
+          <button id="iconSaveHrefBtn" class="editor-btn" type="button">Save Link</button>
+        </div>
         <div class="icon-search-row">
           <select id="iconSetSelect" aria-label="Icon set">
             <option value="mdi">Material Design Icons (mdi)</option>
@@ -219,6 +229,10 @@
       const iconSetSelect = document.getElementById("iconSetSelect")
       const iconSearchInput = document.getElementById("iconSearchInput")
       const iconSearchStatus = document.getElementById("iconSearchStatus")
+      const iconLabelInput = document.getElementById("iconLabelInput")
+      const iconSaveLabelBtn = document.getElementById("iconSaveLabelBtn")
+      const iconHrefInput = document.getElementById("iconHrefInput")
+      const iconSaveHrefBtn = document.getElementById("iconSaveHrefBtn")
       const iconChoices = document.getElementById("iconChoices")
       const iconClearBtn = document.getElementById("iconClearBtn")
       const iconCancelBtn = document.getElementById("iconCancelBtn")
@@ -245,6 +259,12 @@
 
       const setStatus = (text) => {
         statusEl.textContent = text
+      }
+
+      const normalizeHref = (hrefRaw) => {
+        const trimmed = String(hrefRaw || "").trim()
+        if (!trimmed) return ""
+        return /^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(trimmed) ? trimmed : `https://${trimmed}`
       }
 
       const reloadLinksFromSheet = () => {
@@ -310,6 +330,18 @@
         }
       }
 
+      const applyLabelToAnchor = (anchor, label) => {
+        const nextLabel = String(label || "").trim()
+        if (!nextLabel) return
+        anchor.dataset.label = nextLabel
+        anchor.title = nextLabel
+        anchor.setAttribute("aria-label", nextLabel)
+        applyIconToAnchor(anchor, anchor.dataset.icon || "")
+        if (editorState.targetAnchor === anchor) {
+          iconModalSub.textContent = `Editing: ${nextLabel}`
+        }
+      }
+
       const saveIconToSheet = async (anchor, icon) => {
         if (!ensureEditorApiConfigured()) {
           setStatus("Save cancelled. API not configured.")
@@ -339,6 +371,79 @@
           applyIconToAnchor(anchor, icon)
           setStatus("Saved to Google Sheet.")
         } catch (error) {
+          setStatus(`Save failed: ${error.message}`)
+        }
+      }
+
+      const saveLabelToSheet = async (anchor, label) => {
+        if (!ensureEditorApiConfigured()) {
+          setStatus("Save cancelled. API not configured.")
+          return
+        }
+
+        const row = Number(anchor.dataset.sheetRow)
+        const cleanLabel = String(label || "").trim()
+        if (!cleanLabel) {
+          setStatus("Label cannot be empty.")
+          return
+        }
+
+        const payload = {
+          action: "set_label",
+          token: editorState.token,
+          sheet: editorState.sheetName,
+          row: row,
+          label: cleanLabel
+        }
+
+        setStatus("Saving label...")
+        try {
+          await callEditorApi(payload)
+          applyLabelToAnchor(anchor, cleanLabel)
+          setStatus("Label saved to Google Sheet.")
+          closeModal()
+        } catch (error) {
+          if (/unsupported action/i.test(error.message) || /set_label/i.test(error.message)) {
+            setStatus("Save failed: Apps Script must support action 'set_label'.")
+            return
+          }
+          setStatus(`Save failed: ${error.message}`)
+        }
+      }
+
+      const saveHrefToSheet = async (anchor, hrefRaw) => {
+        if (!ensureEditorApiConfigured()) {
+          setStatus("Save cancelled. API not configured.")
+          return
+        }
+
+        const row = Number(anchor.dataset.sheetRow)
+        const cleanHref = normalizeHref(hrefRaw)
+        if (!cleanHref) {
+          setStatus("Link cannot be empty.")
+          return
+        }
+
+        const payload = {
+          action: "set_href",
+          token: editorState.token,
+          sheet: editorState.sheetName,
+          row: row,
+          href: cleanHref
+        }
+
+        setStatus("Saving link...")
+        try {
+          await callEditorApi(payload)
+          anchor.setAttribute("href", cleanHref)
+          iconHrefInput.value = cleanHref
+          setStatus("Link saved to Google Sheet.")
+          closeModal()
+        } catch (error) {
+          if (/unsupported action/i.test(error.message) || /set_href/i.test(error.message)) {
+            setStatus("Save failed: Apps Script must support action 'set_href'.")
+            return
+          }
           setStatus(`Save failed: ${error.message}`)
         }
       }
@@ -429,7 +534,7 @@
         if (!label) return
         const hrefRaw = (prompt("Button URL", "https://") || "").trim()
         if (!hrefRaw) return
-        const href = /^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(hrefRaw) ? hrefRaw : `https://${hrefRaw}`
+        const href = normalizeHref(hrefRaw)
         const icon = (prompt("Optional icon (ex: mdi:airplane). Leave blank for text button.", "") || "").trim()
 
         const payload = {
@@ -560,6 +665,8 @@
       const openModal = (anchor) => {
         editorState.targetAnchor = anchor
         iconModalSub.textContent = `Editing: ${anchor.dataset.label || ""}`
+        iconLabelInput.value = anchor.dataset.label || ""
+        iconHrefInput.value = anchor.getAttribute("href") || ""
         const currentIcon = String(anchor.dataset.icon || "").trim()
         const defaultSet = currentIcon.includes(":") ? currentIcon.split(":")[0] : "mdi"
         selectedIconSet = curatedIconsBySet[defaultSet] ? defaultSet : "mdi"
@@ -658,6 +765,26 @@
         if (!button || !editorState.targetAnchor) return
         await saveIconToSheet(editorState.targetAnchor, button.dataset.icon || "")
         closeModal()
+      })
+      iconSaveLabelBtn.addEventListener("click", async () => {
+        if (!editorState.targetAnchor) return
+        await saveLabelToSheet(editorState.targetAnchor, iconLabelInput.value)
+      })
+      iconLabelInput.addEventListener("keydown", async (event) => {
+        if (event.key !== "Enter") return
+        event.preventDefault()
+        if (!editorState.targetAnchor) return
+        await saveLabelToSheet(editorState.targetAnchor, iconLabelInput.value)
+      })
+      iconSaveHrefBtn.addEventListener("click", async () => {
+        if (!editorState.targetAnchor) return
+        await saveHrefToSheet(editorState.targetAnchor, iconHrefInput.value)
+      })
+      iconHrefInput.addEventListener("keydown", async (event) => {
+        if (event.key !== "Enter") return
+        event.preventDefault()
+        if (!editorState.targetAnchor) return
+        await saveHrefToSheet(editorState.targetAnchor, iconHrefInput.value)
       })
       iconSearchInput.addEventListener("input", (event) => {
         if (iconSearchTimer) clearTimeout(iconSearchTimer)

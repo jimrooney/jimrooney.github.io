@@ -1,5 +1,19 @@
 # Build Notes
 
+## 2026-03-07
+
+### Editable Label In Icon Modal
+- Added an editable `Label` field to the icon chooser modal in edit mode.
+- Added `Save Label` action (and Enter key submit) to persist label updates.
+- Frontend now posts `action: "set_label"` to update column A for the selected row.
+- Updated Apps Script setup docs with `set_label` payload and handler example.
+
+### Editable Link URL In Icon Modal
+- Added an editable `Link` URL field to the icon chooser modal in edit mode.
+- Added `Save Link` action (and Enter key submit) to persist URL updates.
+- Frontend now posts `action: "set_href"` to update column B for the selected row.
+- Updated Apps Script setup docs with `set_href` payload and handler example.
+
 ## 2026-03-05
 
 ### Publish Sound Automation

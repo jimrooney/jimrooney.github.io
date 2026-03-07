@@ -302,6 +302,31 @@ a:link {
   color: #a2d8f5;
 }
 
+.icon-edit-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  margin: 0 0 10px;
+  align-items: center;
+}
+
+.icon-edit-row label {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #97cfee;
+}
+
+.icon-edit-row input {
+  border: 1px solid #5ab9e9;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 14px;
+  background: rgba(3, 18, 40, 0.9);
+  color: #dff7ff;
+  min-width: 0;
+}
+
 .icon-search-row {
   display: grid;
   grid-template-columns: 1fr;
@@ -368,6 +393,12 @@ a:link {
   gap: 8px;
   justify-content: flex-end;
   align-items: center;
+}
+
+@media (max-width: 620px) {
+  .icon-edit-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 .icon-chooser-link {

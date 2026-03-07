@@ -44,6 +44,8 @@
   - untitled sections show `+ Title Bar`, which posts `set_section_title` or `insert_section_break`
   - drag-and-drop on link tiles reorders rows in the sheet via `action: "move_row"`
   - clicking a link opens an icon modal
+  - modal label editor posts `action: "set_label"` to update column A
+  - modal link editor posts `action: "set_href"` to update column B
   - selecting an icon posts `action: "set_icon"` to Apps Script
   - delete button posts `action: "delete_row"` to Apps Script
 - API configuration (endpoint + token) is stored in browser `localStorage`.
@@ -52,6 +54,8 @@
 - Frontend sends plain text JSON body to avoid browser preflight issues.
 - Supported actions:
   - `add_link`: appends a new link row (`label`, `href`, optional `icon`)
+  - `set_label`: updates label in column A for a link row
+  - `set_href`: updates URL in column B for a link row
   - `set_icon`: writes icon value to column C
   - `delete_row`: deletes a row from the target sheet
   - `move_row`: moves one row before another target row

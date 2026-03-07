@@ -31,6 +31,30 @@ The frontend posts JSON as a plain text body (`Content-Type: text/plain`) to avo
 }
 ```
 
+- For label edits from the icon modal, payload is:
+
+```json
+{
+  "action": "set_label",
+  "token": "your-shared-token",
+  "sheet": "Links",
+  "row": 12,
+  "label": "Weather"
+}
+```
+
+- For link URL edits from the icon modal, payload is:
+
+```json
+{
+  "action": "set_href",
+  "token": "your-shared-token",
+  "sheet": "Links",
+  "row": 12,
+  "href": "https://example.com"
+}
+```
+
 - For drag/drop reorder, payload is:
 
 ```json
@@ -169,6 +193,24 @@ function doPost(e) {
       return jsonResponse({ ok: true, action: action, row: row, title: title });
     }
 
+    if (action === "set_label") {
+      if (!label) {
+        return jsonResponse({ ok: false, error: "label is required" });
+      }
+      // Column A = label
+      sheet.getRange(row, 1).setValue(label);
+      return jsonResponse({ ok: true, action: action, row: row, label: label });
+    }
+
+    if (action === "set_href") {
+      if (!href) {
+        return jsonResponse({ ok: false, error: "href is required" });
+      }
+      // Column B = URL
+      sheet.getRange(row, 2).setValue(href);
+      return jsonResponse({ ok: true, action: action, row: row, href: href });
+    }
+
     if (action === "set_icon") {
       // Column C = icon
       sheet.getRange(row, 3).setValue(icon);
@@ -223,6 +265,8 @@ function sectionBreakHtml(title) {
 - If you redeploy as a new version, update the URL in the site config.
 - Keep the token private. Anyone with URL + token can write icons.
 - Edit mode now supports:
+  - editing link labels in column A (`set_label`)
+  - editing link URLs in column B (`set_href`)
   - setting/clearing column C icon values
   - deleting entire link rows from the sheet
   - drag/drop row reorder (requires `move_row` action in Apps Script)
