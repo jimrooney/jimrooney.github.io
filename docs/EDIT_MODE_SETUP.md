@@ -1,110 +1,53 @@
 # Edit Mode Setup (Apps Script Web App)
 
-This project can now send icon edits from `index.html` to a Google Apps Script web app.
+The site now saves the entire dashboard as one JSON blob in a single sheet cell.
 
-The frontend posts JSON as a plain text body (`Content-Type: text/plain`) to avoid browser preflight/CORS issues.
+- Read path:
+  - frontend first tries `LinksJson!A1`
+  - if that cell is missing or empty, it falls back to the legacy row-based `Links` sheet
+- Write path:
+  - exiting edit mode posts one `set_links_json` request
+  - Apps Script writes the JSON string into `LinksJson!A1`
+
+## JSON Shape
+
+The saved document looks like:
+
+```json
+{
+  "version": 1,
+  "items": [
+    { "type": "section", "title": "Planning" },
+    { "type": "link", "label": "Weather", "href": "https://windy.com", "icon": "mdi:weather-windy" },
+    { "type": "html", "html": "<div>Custom block</div>" }
+  ]
+}
+```
+
+Supported item types:
+
+- `section`: starts a titled section
+- `link`: normal dashboard button/icon tile
+- `html`: raw HTML block inserted into the current section
 
 ## Frontend Payload
 
-`index.html` sends:
+`index.html` now sends:
 
 ```json
 {
-  "action": "set_icon",
+  "action": "set_links_json",
   "token": "your-shared-token",
-  "sheet": "Links",
-  "row": 12,
-  "icon": "mdi:airplane"
+  "sheet": "LinksJson",
+  "row": 1,
+  "col": 1,
+  "json": "{\n  \"version\": 1,\n  \"items\": []\n}"
 }
 ```
 
-- `row` is 1-based sheet row index.
-- `icon` is written to column C.
-- For row deletion, payload is:
-
-```json
-{
-  "action": "delete_row",
-  "token": "your-shared-token",
-  "sheet": "Links",
-  "row": 12
-}
-```
-
-- For label edits from the icon modal, payload is:
-
-```json
-{
-  "action": "set_label",
-  "token": "your-shared-token",
-  "sheet": "Links",
-  "row": 12,
-  "label": "Weather"
-}
-```
-
-- For link URL edits from the icon modal, payload is:
-
-```json
-{
-  "action": "set_href",
-  "token": "your-shared-token",
-  "sheet": "Links",
-  "row": 12,
-  "href": "https://example.com"
-}
-```
-
-- For drag/drop reorder, payload is:
-
-```json
-{
-  "action": "move_row",
-  "token": "your-shared-token",
-  "sheet": "Links",
-  "row": 12,
-  "targetRow": 20
-}
-```
-
-- `move_row` moves `row` so it lands immediately before `targetRow`.
-
-- For adding a new button row, payload is:
-
-```json
-{
-  "action": "add_link",
-  "token": "your-shared-token",
-  "sheet": "Links",
-  "label": "Weather",
-  "href": "https://windy.com",
-  "icon": "mdi:weather-windy"
-}
-```
-
-- For adding/updating a section title on an existing `<hr>` row:
-
-```json
-{
-  "action": "set_section_title",
-  "token": "your-shared-token",
-  "sheet": "Links",
-  "row": 15,
-  "title": "Planning"
-}
-```
-
-- For inserting a new titled section break before a row:
-
-```json
-{
-  "action": "insert_section_break",
-  "token": "your-shared-token",
-  "sheet": "Links",
-  "targetRow": 6,
-  "title": "Planning"
-}
-```
+- `sheet` defaults to `LinksJson`
+- `row` and `col` default to `1`
+- `json` is the entire dashboard state
 
 ## Apps Script `Code.gs`
 
@@ -112,7 +55,7 @@ Use this in your script project attached to the spreadsheet:
 
 ```javascript
 const SPREADSHEET_ID = "1ZQDN58WT5hdFVYiJA7yIJocm4vbc0Gw8ecJUj1pkYwg";
-const SHARED_TOKEN = "jr_icon_edit_2026_3f8cc9b17d5a4e7ea28c1d9f6ab340c2f71e5a9448b64d2c";
+const SHARED_TOKEN = "replace_me";
 
 function doOptions() {
   return ContentService.createTextOutput("")
@@ -126,14 +69,11 @@ function doPost(e) {
       return jsonResponse({ ok: false, error: "Unauthorized" });
     }
 
-    const action = String(body.action || "set_icon");
-    const sheetName = String(body.sheet || "Links");
-    const row = Number(body.row);
-    const targetRow = Number(body.targetRow);
-    const title = String(body.title || "").trim();
-    const label = String(body.label || "").trim();
-    const href = String(body.href || "").trim();
-    const icon = String(body.icon || "");
+    const action = String(body.action || "");
+    const sheetName = String(body.sheet || "LinksJson");
+    const row = Number(body.row || 1);
+    const col = Number(body.col || 1);
+    const json = String(body.json || "");
 
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(sheetName);
@@ -141,80 +81,13 @@ function doPost(e) {
       return jsonResponse({ ok: false, error: "Sheet not found" });
     }
 
-    if (action === "add_link") {
-      if (!label || !href) {
-        return jsonResponse({ ok: false, error: "label and href are required" });
+    if (action === "set_links_json") {
+      if (!json) {
+        return jsonResponse({ ok: false, error: "json is required" });
       }
-      sheet.appendRow([label, href, icon || ""]);
-      return jsonResponse({ ok: true, action: action });
-    }
-
-    if (action === "insert_section_break") {
-      if (!targetRow || targetRow < 1) {
-        return jsonResponse({ ok: false, error: "Invalid targetRow" });
-      }
-      const hrHtml = sectionBreakHtml(title);
-      sheet.insertRowsBefore(targetRow, 1);
-      sheet.getRange(targetRow, 1, 1, 3).setValues([["HTML", hrHtml, ""]]);
-      return jsonResponse({ ok: true, action: action, targetRow: targetRow });
-    }
-
-    if (!row || row < 1) {
-      return jsonResponse({ ok: false, error: "Invalid row" });
-    }
-
-    if (action === "delete_row") {
-      if (row > sheet.getLastRow()) {
-        return jsonResponse({ ok: false, error: "Row out of range" });
-      }
-      sheet.deleteRow(row);
-      return jsonResponse({ ok: true, action: action, row: row });
-    }
-
-    if (action === "move_row") {
-      if (!targetRow || targetRow < 1) {
-        return jsonResponse({ ok: false, error: "Invalid targetRow" });
-      }
-      if (row > sheet.getLastRow() || targetRow > sheet.getLastRow()) {
-        return jsonResponse({ ok: false, error: "Row out of range" });
-      }
-      if (row !== targetRow && row + 1 !== targetRow) {
-        moveRowBefore(sheet, row, targetRow);
-      }
-      return jsonResponse({ ok: true, action: action, row: row, targetRow: targetRow });
-    }
-
-    if (action === "set_section_title") {
-      const currentLabel = String(sheet.getRange(row, 1).getValue() || "").trim();
-      if (currentLabel !== "HTML") {
-        return jsonResponse({ ok: false, error: "Row is not an HTML section break" });
-      }
-      sheet.getRange(row, 2).setValue(sectionBreakHtml(title));
-      return jsonResponse({ ok: true, action: action, row: row, title: title });
-    }
-
-    if (action === "set_label") {
-      if (!label) {
-        return jsonResponse({ ok: false, error: "label is required" });
-      }
-      // Column A = label
-      sheet.getRange(row, 1).setValue(label);
-      return jsonResponse({ ok: true, action: action, row: row, label: label });
-    }
-
-    if (action === "set_href") {
-      if (!href) {
-        return jsonResponse({ ok: false, error: "href is required" });
-      }
-      // Column B = URL
-      sheet.getRange(row, 2).setValue(href);
-      return jsonResponse({ ok: true, action: action, row: row, href: href });
-    }
-
-    if (action === "set_icon") {
-      // Column C = icon
-      sheet.getRange(row, 3).setValue(icon);
-      return jsonResponse({ ok: true, action: action, row: row, icon: icon });
+      JSON.parse(json);
+      sheet.getRange(row, col).setValue(json);
+      return jsonResponse({ ok: true, action: action, sheet: sheetName, row: row, col: col });
     }
 
     return jsonResponse({ ok: false, error: "Unsupported action" });
@@ -227,23 +100,13 @@ function jsonResponse(payload) {
   return ContentService.createTextOutput(JSON.stringify(payload))
     .setMimeType(ContentService.MimeType.JSON);
 }
-
-function moveRowBefore(sheet, fromRow, targetRow) {
-  const numCols = sheet.getLastColumn();
-  const rowValues = sheet.getRange(fromRow, 1, 1, numCols).getValues();
-  sheet.deleteRow(fromRow);
-  const insertAt = fromRow < targetRow ? targetRow - 1 : targetRow;
-  sheet.insertRowsBefore(insertAt, 1);
-  sheet.getRange(insertAt, 1, 1, numCols).setValues(rowValues);
-}
-
-function sectionBreakHtml(title) {
-  const safeTitle = String(title || "").trim();
-  return safeTitle
-    ? `<hr data-title="${safeTitle}" />`
-    : "<hr />";
-}
 ```
+
+## Sheet Setup
+
+1. Create a sheet tab named `LinksJson`.
+2. Put the JSON document in cell `A1`.
+3. Keep the legacy `Links` tab during migration if you want the frontend fallback.
 
 ## Deploy Steps
 
@@ -262,13 +125,6 @@ function sectionBreakHtml(title) {
 
 ## Notes
 
-- If you redeploy as a new version, update the URL in the site config.
-- Keep the token private. Anyone with URL + token can write icons.
-- Edit mode now supports:
-  - editing link labels in column A (`set_label`)
-  - editing link URLs in column B (`set_href`)
-  - setting/clearing column C icon values
-  - deleting entire link rows from the sheet
-  - drag/drop row reorder (requires `move_row` action in Apps Script)
-  - adding new link buttons (`add_link`)
-  - adding section titles (`set_section_title` / `insert_section_break`)
+- Save happens once when edit mode exits.
+- If the Save API is not configured, you can still edit locally and discard queued changes on exit.
+- The old row-based Apps Script actions are no longer used by the frontend.

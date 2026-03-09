@@ -24,10 +24,9 @@ if ([string]::IsNullOrWhiteSpace($branch)) {
 
 git push origin $branch
 
-$soundPath = "C:\Home\Jim\System\sounds\gotthis.wav"
-if (Test-Path $soundPath) {
-  $player = New-Object System.Media.SoundPlayer $soundPath
-  $player.PlaySync()
+$playSoundScript = Join-Path $PSScriptRoot "play-sound.ps1"
+if (Test-Path $playSoundScript) {
+  & $playSoundScript
 } else {
-  Write-Warning "Publish finished, but sound file not found: $soundPath"
+  Write-Warning "Publish finished, but sound helper script not found: $playSoundScript"
 }

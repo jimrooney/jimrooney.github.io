@@ -29,7 +29,7 @@ When the user says **publish**, execute the following workflow exactly:
 1. Update BUILD_NOTES.md if any changes were made
 2. Update ARCHITECTURE.md if architecture changed
 3. Run `scripts/publish.ps1` to commit and push
-4. Ensure publish completion sound plays: `C:\Home\Jim\System\sounds\gotthis.wav`
+4. Ensure publish completion sound plays via `scripts/play-sound.ps1` (randomized `.wav`)
 
 Prefer one clean commit per publish.
 
@@ -47,7 +47,7 @@ A "completion checkpoint" is when a requested task is finished, validated, and w
 
 At completion checkpoints, play:
 
-- `C:\Home\Jim\System\sounds\gotthis.wav`
+- `scripts/play-sound.ps1` (randomized completion sound)
 
 ## Security
 

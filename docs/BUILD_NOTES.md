@@ -1,5 +1,22 @@
 # Build Notes
 
+## 2026-03-10
+
+### Single-Cell JSON Saves
+- Switched edit-mode persistence from many row-level Apps Script actions to one `set_links_json` call on edit-mode exit.
+- Frontend now keeps the dashboard in an in-memory `items` model and saves the full JSON document to `LinksJson!A1`.
+- Loader now prefers the `LinksJson` sheet and falls back to the legacy row-based `Links` sheet during migration.
+
+### Deferred Reorder Saves
+- Changed edit-mode drag/drop to reorder tiles in the DOM immediately instead of posting `move_row` during the drag interaction.
+- Queued link reordering now flushes alongside queued icon/label/link edits when edit mode exits.
+- Immediate write actions (`Add Button`, delete, `+ Title Bar`) now flush queued edits/reorders first so sheet state stays consistent.
+
+### Randomized Completion Sounds
+- Added `scripts/play-sound.ps1` to play a randomized `.wav` for completion events.
+- Updated `scripts/publish.ps1` to use `scripts/play-sound.ps1` instead of a fixed single file.
+- Updated `docs/AI_CONTEXT.md` so publish/completion checkpoint instructions now point to randomized sound playback.
+
 ## 2026-03-07
 
 ### Editable Label In Icon Modal

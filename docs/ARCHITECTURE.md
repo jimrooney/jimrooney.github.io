@@ -1,13 +1,30 @@
 # Architecture
 
 ## Overview
-- This site renders a link dashboard from a Google Sheet (`Links` tab) using the Google Visualization endpoint (`gviz/tq`).
-- Client-side code pulls rows and converts each row into either:
-  - raw HTML block (`label === "HTML"`)
-  - normal link button
-  - icon link button (if icon column is present)
+- This site renders a link dashboard from Google Sheets using the Google Visualization endpoint (`gviz/tq`).
+- The frontend now prefers a single JSON blob in `LinksJson!A1` and falls back to the legacy row-based `Links` tab if the JSON sheet is absent.
+- Client-side code normalizes data into an in-memory `items` array containing:
+  - `section`
+  - `link`
+  - `html`
 
-## Data Contract (Google Sheet)
+## Data Contract (Preferred JSON)
+- Stored in `LinksJson!A1`.
+- Shape:
+  - `version`
+  - `items[]`
+
+### Item Types
+- `section`
+  - `title`
+- `link`
+  - `label`
+  - `href`
+  - `icon` (optional)
+- `html`
+  - `html`
+
+## Legacy Data Contract (Fallback Sheet)
 - Column A: `label`
 - Column B: `href`
 - Column C: `icon` (optional)
@@ -40,27 +57,19 @@
 - `Configure Save API` button is visible only while edit mode is enabled.
 - Clicking outside tiles/controls exits edit mode.
 - In edit mode:
-  - add-button flow posts `action: "add_link"` to append a new link row
-  - untitled sections show `+ Title Bar`, which posts `set_section_title` or `insert_section_break`
-  - drag-and-drop on link tiles reorders rows in the sheet via `action: "move_row"`
+  - add-button flow updates the local `items` array
+  - untitled sections show `+ Title Bar`, which inserts a local `section` item
+  - drag-and-drop on link tiles reorders the DOM immediately and updates the local `items` array
   - clicking a link opens an icon modal
-  - modal label editor posts `action: "set_label"` to update column A
-  - modal link editor posts `action: "set_href"` to update column B
-  - selecting an icon posts `action: "set_icon"` to Apps Script
-  - delete button posts `action: "delete_row"` to Apps Script
+  - modal label/link/icon edits update the local `items` array
+  - delete button removes a local `link` item
+  - exiting edit mode posts the full JSON document once
 - API configuration (endpoint + token) is stored in browser `localStorage`.
 
 ## Apps Script Contract
 - Frontend sends plain text JSON body to avoid browser preflight issues.
-- Supported actions:
-  - `add_link`: appends a new link row (`label`, `href`, optional `icon`)
-  - `set_label`: updates label in column A for a link row
-  - `set_href`: updates URL in column B for a link row
-  - `set_icon`: writes icon value to column C
-  - `delete_row`: deletes a row from the target sheet
-  - `move_row`: moves one row before another target row
-  - `set_section_title`: updates an existing section-break HTML row
-  - `insert_section_break`: inserts a titled `<hr>` section-break row
+- Supported action:
+  - `set_links_json`: writes the entire dashboard document to a single cell
 - Deployment and server code are documented in `docs/EDIT_MODE_SETUP.md`.
 
 ## Utility Page
