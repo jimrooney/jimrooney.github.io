@@ -2,6 +2,10 @@
 
 ## 2026-03-11
 
+### Modal Icon Color Match
+- Fixed the edit-mode icon chooser modal so Iconify preview icons render white like the main page buttons.
+- Applied the same invert/brightness filter used by the main dashboard icon tiles to the modal chooser icon images.
+
 ### Edit UI Visibility Cleanup
 - Fixed section edit controls and drop affordances leaking into normal viewing mode.
 - Section add/remove buttons and section drop slots are now explicitly hidden outside edit mode in addition to the existing CSS gating.

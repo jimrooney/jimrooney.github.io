@@ -440,6 +440,7 @@ a:link {
 .icon-choice img {
   width: 26px;
   height: 26px;
+  filter: brightness(0) invert(1);
 }
 
 .icon-choice span {
