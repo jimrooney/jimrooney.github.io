@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Toru Home</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="smart-home-page">
+      <section class="smart-home-panel">
+        <div class="smart-home-icon-wrap" aria-hidden="true">
+          <img class="smart-home-icon" src="https://api.iconify.design/mdi/home.svg" alt="" />
+        </div>
+        <h1 class="smart-home-title">Opening Toru Home</h1>
+        <p id="smartHomeStatus" class="smart-home-status">
+          Trying the local address first, then falling back to Tailscale if needed.
+        </p>
+        <p class="smart-home-links">
+          <a class="BlueBox smart-home-link" href="http://192.168.0.2">Open local directly</a>
+          <a class="BlueBox smart-home-link" href="http://pi.panther-perch.ts.net">Open via Tailscale</a>
+        </p>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const LOCAL_URL = "http://192.168.0.2"
+        const TAILSCALE_URL = "http://pi.panther-perch.ts.net"
+        const PROBE_URL = `${LOCAL_URL}/favicon.ico?smart-home-probe=${Date.now()}`
+        const PROBE_TIMEOUT_MS = 1200
+        const statusEl = document.getElementById("smartHomeStatus")
+
+        const navigateTo = (url) => {
+          window.location.replace(url)
+        }
+
+        const fallbackToTailscale = () => {
+          statusEl.textContent = "Local address was not confirmed quickly. Opening the Tailscale address instead."
+          navigateTo(TAILSCALE_URL)
+        }
+
+        const tryLocalProbe = () => {
+          let finished = false
+          const probe = new Image()
+
+          const finish = (didReachLocal) => {
+            if (finished) return
+            finished = true
+            window.clearTimeout(timeoutId)
+            if (didReachLocal) {
+              statusEl.textContent = "Local address responded. Opening Toru Home on the local network."
+              navigateTo(LOCAL_URL)
+              return
+            }
+            fallbackToTailscale()
+          }
+
+          const timeoutId = window.setTimeout(() => finish(false), PROBE_TIMEOUT_MS)
+
+          probe.onload = () => finish(true)
+          probe.onerror = () => finish(false)
+          probe.src = PROBE_URL
+        }
+
+        // GitHub Pages is HTTPS. Browsers may block probing plain HTTP local resources
+        // from a secure page, so fall back quickly instead of leaving the user waiting.
+        if (window.location.protocol === "https:") {
+          fallbackToTailscale()
+          return
+        }
+
+        tryLocalProbe()
+      })()
+    </script>
+  </body>
+</html>

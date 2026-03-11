@@ -37,7 +37,7 @@ Prefer one clean commit per publish.
 
 If a user prompt/decision is required to continue and cannot be safely assumed, play:
 
-- `C:\Home\Jim\System\sounds\garage.wav`
+- `C:\Home\Projects\Code\Codex\Scripts\play-sound.ps1 needs-input`
 
 Then ask the blocking question.
 
@@ -47,7 +47,7 @@ A "completion checkpoint" is when a requested task is finished, validated, and w
 
 At completion checkpoints, play:
 
-- `scripts/play-sound.ps1` (randomized completion sound)
+- `C:\Home\Projects\Code\Codex\Scripts\play-sound.ps1` (randomized `task-complete` sound from `C:\Home\Projects\Code\Codex\Sounds\task-complete`)
 
 ## Security
 

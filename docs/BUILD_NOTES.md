@@ -1,6 +1,20 @@
 # Build Notes
 
+## 2026-03-11
+
+### Header Toru Home Smart Link
+- Added a single house icon button in the header so Toru Home is reachable from the main banner instead of separate visible dashboard buttons.
+- Added `toru-home.html` as a lightweight intermediary page that attempts a local-first redirect when served over plain HTTP and otherwise falls back quickly to the Tailscale hostname.
+- Kept the existing HUD visual language by reusing the same cyan-glow button treatment for the new header control and helper page.
+- Verified local static serving by loading both `index.html` and `toru-home.html` through a temporary local HTTP server.
+
 ## 2026-03-10
+
+### Shared Sound Categories
+- Added shared sound folders at `C:\Home\Projects\Code\Codex\Sounds\task-complete` and `C:\Home\Projects\Code\Codex\Sounds\needs-input`.
+- Copied completion `.wav` files into `task-complete`, and routed `garage.wav` plus `getthat.wav` into `needs-input`.
+- Added shared script `C:\Home\Projects\Code\Codex\Scripts\play-sound.ps1`.
+- Updated `scripts/play-sound.ps1` to delegate to the shared script, defaulting to `task-complete`.
 
 ### Single-Cell JSON Saves
 - Switched edit-mode persistence from many row-level Apps Script actions to one `set_links_json` call on edit-mode exit.

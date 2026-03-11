@@ -1,15 +1,20 @@
-$primaryDir = "C:\Home\Jim\System\sounds"
-$fallbackDir = Join-Path $PSScriptRoot "..\sounds"
+param(
+  [ValidateSet("task-complete", "needs-input")]
+  [string]$Category = "task-complete"
+)
 
-$wavFiles = @()
-if (Test-Path $primaryDir) {
-  $wavFiles = Get-ChildItem -Path $primaryDir -Filter "*.wav" -File -ErrorAction SilentlyContinue
+$sharedScript = "C:\Home\Projects\Code\Codex\Scripts\play-sound.ps1"
+if (Test-Path $sharedScript) {
+  & $sharedScript $Category
+  return
 }
 
-if (-not $wavFiles -and (Test-Path $fallbackDir)) {
-  $wavFiles = Get-ChildItem -Path $fallbackDir -Filter "*.wav" -File -ErrorAction SilentlyContinue
+$fallbackDir = Join-Path (Join-Path $PSScriptRoot "..\sounds") $Category
+if (-not (Test-Path $fallbackDir)) {
+  return
 }
 
+$wavFiles = Get-ChildItem -Path $fallbackDir -Filter "*.wav" -File -ErrorAction SilentlyContinue
 if (-not $wavFiles) {
   return
 }

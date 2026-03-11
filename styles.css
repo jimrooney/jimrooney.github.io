@@ -86,6 +86,15 @@ a:link {
   overflow: hidden;
 }
 
+.header-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  position: relative;
+  z-index: 1;
+}
+
 .header-title {
   color: #dbf5ff;
   font-family: "Orbitron", "Rajdhani", "Segoe UI", sans-serif;
@@ -107,6 +116,39 @@ a:link {
   margin-top: 6px;
   position: relative;
   z-index: 1;
+}
+
+.header-home-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(52px, 6vw, 68px);
+  height: clamp(52px, 6vw, 68px);
+  flex: 0 0 auto;
+  border-radius: 16px;
+  border: 1px solid rgba(69, 196, 255, 0.9);
+  background:
+    linear-gradient(180deg, rgba(20, 78, 135, 0.72) 0%, rgba(9, 45, 93, 0.86) 100%);
+  box-shadow:
+    0 0 0 1px rgba(59, 180, 244, 0.32) inset,
+    0 0 12px var(--glow-soft);
+  transition: transform 120ms ease, background 120ms ease, box-shadow 120ms ease;
+  text-decoration: none;
+}
+
+.header-home-link:hover {
+  background: linear-gradient(180deg, rgba(29, 108, 183, 0.8) 0%, rgba(17, 65, 122, 0.9) 100%);
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 1px rgba(98, 220, 255, 0.48) inset,
+    0 0 18px rgba(49, 193, 255, 0.45);
+}
+
+.header-home-icon {
+  width: clamp(24px, 3vw, 34px);
+  height: clamp(24px, 3vw, 34px);
+  display: block;
+  filter: brightness(0) invert(1);
 }
 
 #LinkContainer {
@@ -459,4 +501,98 @@ a:link {
 
 .edit-mode .delete-link-btn {
   display: inline-block;
+}
+
+.smart-home-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.smart-home-panel {
+  width: min(560px, 94vw);
+  border-radius: 18px;
+  border: 1px solid rgba(72, 183, 241, 0.72);
+  background:
+    linear-gradient(180deg, rgba(10, 37, 77, 0.8) 0%, rgba(7, 24, 50, 0.88) 100%);
+  padding: 28px 24px;
+  box-shadow:
+    0 0 0 1px rgba(66, 165, 223, 0.3) inset,
+    0 0 22px rgba(12, 119, 193, 0.24);
+  text-align: center;
+}
+
+.smart-home-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 74px;
+  height: 74px;
+  margin-bottom: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(69, 196, 255, 0.9);
+  background:
+    linear-gradient(180deg, rgba(20, 78, 135, 0.72) 0%, rgba(9, 45, 93, 0.86) 100%);
+  box-shadow:
+    0 0 0 1px rgba(59, 180, 244, 0.32) inset,
+    0 0 12px var(--glow-soft);
+}
+
+.smart-home-icon {
+  width: 36px;
+  height: 36px;
+  display: block;
+  filter: brightness(0) invert(1);
+}
+
+.smart-home-title {
+  margin: 0 0 10px;
+  color: #dbf5ff;
+  font-family: "Orbitron", "Rajdhani", "Segoe UI", sans-serif;
+  font-size: clamp(28px, 4vw, 38px);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.smart-home-status {
+  margin: 0;
+  color: #a7d6f1;
+  font-size: 20px;
+}
+
+.smart-home-links {
+  margin: 20px 0 0;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.smart-home-link {
+  min-width: 200px;
+  font-size: clamp(16px, 2vw, 22px);
+}
+
+@media (max-width: 620px) {
+  .header-main {
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .header-home-link {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    align-self: flex-start;
+  }
+
+  .smart-home-status {
+    font-size: 18px;
+  }
+
+  .smart-home-link {
+    min-width: 0;
+    width: 100%;
+  }
 }

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pi Web Server</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --panel: #162033;
+      --line: #334155;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: system-ui, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(56,189,248,0.18), transparent 35%),
+        linear-gradient(180deg, #020617, var(--bg));
+      color: var(--text);
+    }
+    main {
+      width: min(92vw, 720px);
+      padding: 32px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(22, 32, 51, 0.92);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      line-height: 1;
+    }
+    p {
+      margin: 8px 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Pi Web Server</h1>
+    <p>This static page is being served successfully.</p>
+    <p>Host: <code>{{HOST}}</code></p>
+    <p>Path: <code>{{PATH}}</code></p>
+  </main>
+</body>
+</html>

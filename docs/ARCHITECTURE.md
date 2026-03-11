@@ -50,6 +50,10 @@
   - small label text beneath icon
 - Accessibility:
   - icon links keep `title` and `aria-label` from column A label.
+- The header also contains a fixed home icon link that routes through `toru-home.html`.
+- `toru-home.html` is a static helper page for Toru Home navigation:
+  - if served over plain HTTP, it probes the local LAN target briefly and redirects there when reachable
+  - if served over HTTPS, it falls back directly to the Tailscale hostname because browsers generally block reliable HTTPS-to-HTTP reachability probes
 
 ## Edit Mode Workflow
 - Edit mode is toggled client-side in `index.html`.
