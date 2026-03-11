@@ -459,6 +459,13 @@
         })
       }
 
+      const syncSectionEditorUi = () => {
+        const enabled = editorState.enabled
+        linksRoot.querySelectorAll(".add-section-title-btn, .add-section-btn, .delete-section-btn, .section-drop-slot").forEach((el) => {
+          el.hidden = !enabled
+        })
+      }
+
       const createSectionContainer = (title = "", sectionItemId = "") => {
         const section = document.createElement("div")
         section.className = "links-section"
@@ -516,6 +523,7 @@
         })
         refreshSectionDropSlots()
         setDraggableState()
+        syncSectionEditorUi()
       }
 
       const flushPendingChanges = async () => {
@@ -574,12 +582,17 @@
         }
 
         editorState.enabled = nextEnabled
+        if (!editorState.enabled) {
+          clearDropTargetState()
+          linksRoot.querySelectorAll(".Nav.dragging").forEach((item) => item.classList.remove("dragging"))
+        }
         document.body.classList.toggle("edit-mode", editorState.enabled)
         editModeToggle.textContent = editorState.enabled ? "Edit Mode: On" : "Edit Mode: Off"
         editorConfigBtn.hidden = !editorState.enabled
         addLinkBtn.hidden = !editorState.enabled
         addSectionBtn.hidden = !editorState.enabled
         setDraggableState()
+        syncSectionEditorUi()
       }
 
       const clearLongPressTimer = () => {
