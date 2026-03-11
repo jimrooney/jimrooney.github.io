@@ -170,10 +170,18 @@ a:link {
   backdrop-filter: blur(2px);
 }
 
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 12px;
+}
+
 .section-title {
   display: block;
-  margin: 0 0 12px;
-  width: min(98%, 1240px);
+  margin: 0;
+  flex: 1 1 auto;
   padding: 4px 10px;
   border: 1px solid #5ad3ff;
   border-radius: 8px;
@@ -191,12 +199,23 @@ a:link {
 
 .add-section-title-btn {
   display: none;
-  margin: 0 auto 12px;
+  margin: 0;
   font-size: 13px;
   padding: 6px 12px;
 }
 
 .edit-mode .links-section .add-section-title-btn {
+  display: block;
+}
+
+.add-section-btn {
+  display: none;
+  margin: 14px auto 0;
+  font-size: 13px;
+  padding: 6px 12px;
+}
+
+.edit-mode .links-section .add-section-btn {
   display: block;
 }
 
@@ -476,11 +495,41 @@ a:link {
   box-shadow: 0 0 0 1px #2d87c5, 0 0 10px rgba(82, 230, 255, 0.8);
 }
 
+.section-drop-slot {
+  display: none;
+  margin: 12px auto 0;
+  width: min(92%, 360px);
+  padding: 12px 16px;
+  border: 1px dashed rgba(112, 221, 255, 0.72);
+  border-radius: 14px;
+  color: #9fdcf8;
+  font-family: "Orbitron", "Rajdhani", sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  background: rgba(9, 40, 74, 0.38);
+  box-shadow: 0 0 0 1px rgba(59, 180, 244, 0.16) inset;
+}
+
+.edit-mode .links-section.is-empty .section-drop-slot,
+.edit-mode .links-section.drop-target-section .section-drop-slot {
+  display: block;
+}
+
+.edit-mode .links-section.drop-target-section .section-drop-slot {
+  border-style: solid;
+  border-color: #84f2ff;
+  color: #dff8ff;
+  background: rgba(19, 86, 145, 0.42);
+  box-shadow:
+    0 0 0 1px rgba(94, 221, 255, 0.3) inset,
+    0 0 16px rgba(82, 230, 255, 0.32);
+}
+
+.delete-section-btn,
 .delete-link-btn {
   display: none;
-  position: absolute;
-  top: -8px;
-  right: -8px;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -494,11 +543,24 @@ a:link {
   z-index: 5;
 }
 
+.delete-section-btn {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.delete-link-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+}
+
+.delete-section-btn:hover,
 .delete-link-btn:hover {
   background: #4d1228;
   color: #ffd8d8;
 }
 
+.edit-mode .delete-section-btn,
 .edit-mode .delete-link-btn {
   display: inline-block;
 }

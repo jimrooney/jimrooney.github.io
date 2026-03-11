@@ -62,11 +62,14 @@
 - Clicking outside tiles/controls exits edit mode.
 - In edit mode:
   - add-button flow updates the local `items` array
+  - `Add Section` can insert a new `section` item at the end of the dashboard
+  - per-section `+ Section` can insert a new `section` item immediately after that section
   - untitled sections show `+ Title Bar`, which inserts a local `section` item
   - drag-and-drop on link tiles reorders the DOM immediately and updates the local `items` array
   - clicking a link opens an icon modal
   - modal label/link/icon edits update the local `items` array
   - delete button removes a local `link` item
+  - section delete removes the `section` boundary item but keeps any links by merging them into the neighboring section
   - exiting edit mode posts the full JSON document once
 - API configuration (endpoint + token) is stored in browser `localStorage`.
 

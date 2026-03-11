@@ -2,6 +2,12 @@
 
 ## 2026-03-11
 
+### Edit-Mode Section Management
+- Added edit-only section controls so sections can be added and removed without leaving the page editor.
+- Added a small remove control in the upper-right of explicit sections and a `+ Section` control at the bottom of each section.
+- Added an `Add Section` editor-bar button as a fallback way to create a new section at the end of the dashboard.
+- Section removal is intentionally non-destructive: removing a section keeps its buttons and merges them into the neighboring section instead of deleting content.
+
 ### Header Toru Home Smart Link
 - Added a single house icon button in the header so Toru Home is reachable from the main banner instead of separate visible dashboard buttons.
 - Added `toru-home.html` as a lightweight intermediary page that attempts a local-first redirect when served over plain HTTP and otherwise falls back quickly to the Tailscale hostname.

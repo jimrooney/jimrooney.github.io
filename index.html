@@ -34,6 +34,7 @@
       <button id="editModeToggle" class="editor-btn" type="button">Edit Mode: Off</button>
       <button id="editorConfigBtn" class="editor-btn" type="button" hidden>Configure Save API</button>
       <button id="addLinkBtn" class="editor-btn" type="button" hidden>Add Button</button>
+      <button id="addSectionBtn" class="editor-btn" type="button" hidden>Add Section</button>
       <span id="editorStatus" class="editor-status"></span>
     </div>
     <div id="iconModal" class="icon-modal hidden" role="dialog" aria-modal="true" aria-labelledby="iconModalTitle">
@@ -244,6 +245,7 @@
       const editModeToggle = document.getElementById("editModeToggle")
       const editorConfigBtn = document.getElementById("editorConfigBtn")
       const addLinkBtn = document.getElementById("addLinkBtn")
+      const addSectionBtn = document.getElementById("addSectionBtn")
       const iconModal = document.getElementById("iconModal")
       const iconModalSub = document.getElementById("iconModalSub")
       const iconSetSelect = document.getElementById("iconSetSelect")
@@ -261,6 +263,7 @@
       let selectedIconSet = "mdi"
       let draggedNav = null
       let dropTargetNav = null
+      let dropTargetSection = null
       let suppressEditClickUntil = 0
       let longPressTimer = null
       let longPressStartX = 0
@@ -276,6 +279,7 @@
 
       editorConfigBtn.hidden = !editorState.enabled
       addLinkBtn.hidden = !editorState.enabled
+      addSectionBtn.hidden = !editorState.enabled
 
       const setStatus = (text) => {
         statusEl.textContent = text
@@ -444,15 +448,29 @@
         editorState.items = nextItems
       }
 
+      const sectionHasItems = (sectionEl) => {
+        const linksEl = sectionEl?.querySelector(".links")
+        return Boolean(linksEl && linksEl.children.length > 0)
+      }
+
+      const refreshSectionDropSlots = () => {
+        Array.from(linksRoot.querySelectorAll(".links-section")).forEach((sectionEl) => {
+          sectionEl.classList.toggle("is-empty", !sectionHasItems(sectionEl))
+        })
+      }
+
       const createSectionContainer = (title = "", sectionItemId = "") => {
         const section = document.createElement("div")
         section.className = "links-section"
         section.dataset.sectionItemId = sectionItemId || ""
         const safeTitle = esc(title)
+        const deleteControl = sectionItemId
+          ? `<button type="button" class="delete-section-btn" title="Remove section" aria-label="Remove section" data-section-item-id="${esc(sectionItemId)}">-</button>`
+          : ""
         if (safeTitle) {
-          section.innerHTML = `<div class="section-title">${safeTitle}</div><div class="links"></div>`
+          section.innerHTML = `<div class="section-header"><div class="section-title">${safeTitle}</div>${deleteControl}</div><div class="links"></div><div class="section-drop-slot" aria-hidden="true">Drop button here</div><button type="button" class="add-section-btn editor-btn">+ Section</button>`
         } else {
-          section.innerHTML = `<button type="button" class="add-section-title-btn editor-btn">+ Title Bar</button><div class="links"></div>`
+          section.innerHTML = `<div class="section-header"><button type="button" class="add-section-title-btn editor-btn">+ Title Bar</button>${deleteControl}</div><div class="links"></div><div class="section-drop-slot" aria-hidden="true">Drop button here</div><button type="button" class="add-section-btn editor-btn">+ Section</button>`
         }
         linksRoot.appendChild(section)
         return section
@@ -496,6 +514,7 @@
             section.remove()
           }
         })
+        refreshSectionDropSlots()
         setDraggableState()
       }
 
@@ -559,6 +578,7 @@
         editModeToggle.textContent = editorState.enabled ? "Edit Mode: On" : "Edit Mode: Off"
         editorConfigBtn.hidden = !editorState.enabled
         addLinkBtn.hidden = !editorState.enabled
+        addSectionBtn.hidden = !editorState.enabled
         setDraggableState()
       }
 
@@ -687,8 +707,55 @@
         const beforeNode = nextNav?.matches(".Nav") ? nextNav : null
         targetContainer.insertBefore(draggedNavEl, beforeNode)
         syncItemsFromDom()
+        refreshSectionDropSlots()
         markDirty("Queued link reordering. Exit edit mode to save.")
         return true
+      }
+
+      const queueLinkMoveToSection = (draggedNavEl, sectionEl) => {
+        if (!draggedNavEl || !sectionEl) return false
+        const targetContainer = sectionEl.querySelector(".links")
+        if (!targetContainer) return false
+        const currentContainer = draggedNavEl.parentElement
+        if (currentContainer === targetContainer && draggedNavEl === targetContainer.lastElementChild) {
+          return false
+        }
+        targetContainer.appendChild(draggedNavEl)
+        syncItemsFromDom()
+        refreshSectionDropSlots()
+        markDirty("Queued link reordering. Exit edit mode to save.")
+        return true
+      }
+
+      const clearDropTargetState = () => {
+        if (dropTargetNav) {
+          dropTargetNav.classList.remove("drop-target")
+        }
+        if (dropTargetSection) {
+          dropTargetSection.classList.remove("drop-target-section")
+        }
+        dropTargetNav = null
+        dropTargetSection = null
+      }
+
+      const setDropTargetToNav = (navEl) => {
+        if (!navEl || navEl === draggedNav || navEl === touchDraggedNav) return
+        if (dropTargetNav === navEl && !dropTargetSection) return
+        clearDropTargetState()
+        dropTargetNav = navEl
+        dropTargetNav.classList.add("drop-target")
+      }
+
+      const setDropTargetToSection = (sectionEl) => {
+        if (!sectionEl) return
+        const linksEl = sectionEl.querySelector(".links")
+        if (!linksEl) return
+        if (linksEl.contains(draggedNav) && draggedNav === linksEl.lastElementChild) return
+        if (linksEl.contains(touchDraggedNav) && touchDraggedNav === linksEl.lastElementChild) return
+        if (dropTargetSection === sectionEl && !dropTargetNav) return
+        clearDropTargetState()
+        dropTargetSection = sectionEl
+        dropTargetSection.classList.add("drop-target-section")
       }
 
       const addLinkRow = async () => {
@@ -735,6 +802,59 @@
         }
         renderItems()
         markDirty("Section title queued. Exit edit mode to save.")
+      }
+
+      const getInsertIndexAfterSection = (sectionEl) => {
+        if (!sectionEl) return editorState.items.length
+        const linksEl = sectionEl.querySelector(".links")
+        const lastChild = linksEl?.lastElementChild
+        const lastItemId = lastChild?.dataset?.itemId || ""
+        if (lastItemId) {
+          const itemIndex = editorState.items.findIndex((item) => item.id === lastItemId)
+          if (itemIndex >= 0) return itemIndex + 1
+        }
+        const sectionItemId = sectionEl.dataset.sectionItemId || ""
+        if (sectionItemId) {
+          const sectionIndex = editorState.items.findIndex((item) => item.id === sectionItemId)
+          if (sectionIndex >= 0) return sectionIndex + 1
+        }
+        return editorState.items.length
+      }
+
+      const addSectionAfter = async (sectionEl) => {
+        if (!sectionEl || !editorState.enabled) return
+        const title = (prompt("Section title", "New Section") || "").trim()
+        if (!title) return
+        const insertIndex = getInsertIndexAfterSection(sectionEl)
+        editorState.items.splice(insertIndex, 0, normalizeItem({ type: "section", title: title }))
+        renderItems()
+        markDirty("Section added. Drag buttons into it, then exit edit mode to save.")
+      }
+
+      const addSectionAtEnd = async () => {
+        if (!editorState.enabled) return
+        const title = (prompt("Section title", "New Section") || "").trim()
+        if (!title) return
+        editorState.items.push(normalizeItem({ type: "section", title: title }))
+        renderItems()
+        markDirty("Section added. Drag buttons into it, then exit edit mode to save.")
+      }
+
+      const deleteSection = async (sectionEl) => {
+        if (!sectionEl || !editorState.enabled) return
+        const sectionItemId = sectionEl.dataset.sectionItemId || ""
+        if (!sectionItemId) return
+        const sectionItem = findItemById(sectionItemId)
+        if (!sectionItem || sectionItem.type !== "section") return
+        const linkCount = sectionEl.querySelector(".links")?.children.length || 0
+        const label = sectionItem.title || "this section"
+        const message = linkCount
+          ? `Remove section '${label}'? Its buttons will be kept and merged into the previous section.`
+          : `Remove empty section '${label}'?`
+        if (!confirm(message)) return
+        editorState.items = editorState.items.filter((item) => item.id !== sectionItemId)
+        renderItems()
+        markDirty(linkCount ? "Section removed. Buttons were kept in the neighboring section." : "Section removed. Exit edit mode to save.")
       }
 
       const closeModal = () => {
@@ -831,6 +951,7 @@
 
       editorConfigBtn.addEventListener("click", configureEditorApi)
       addLinkBtn.addEventListener("click", addLinkRow)
+      addSectionBtn.addEventListener("click", addSectionAtEnd)
       iconCancelBtn.addEventListener("click", closeModal)
       iconClearBtn.addEventListener("click", async () => {
         if (!editorState.targetAnchor) return
@@ -894,6 +1015,24 @@
           return
         }
 
+        const addSectionBtn = event.target.closest(".add-section-btn")
+        if (addSectionBtn && editorState.enabled) {
+          event.preventDefault()
+          event.stopPropagation()
+          const section = addSectionBtn.closest(".links-section")
+          if (section) addSectionAfter(section)
+          return
+        }
+
+        const deleteSectionBtn = event.target.closest(".delete-section-btn")
+        if (deleteSectionBtn && editorState.enabled) {
+          event.preventDefault()
+          event.stopPropagation()
+          const section = deleteSectionBtn.closest(".links-section")
+          if (section) deleteSection(section)
+          return
+        }
+
         const deleteBtn = event.target.closest(".delete-link-btn")
         if (deleteBtn && editorState.enabled) {
           event.preventDefault()
@@ -947,12 +1086,15 @@
             const hoverEl = document.elementFromPoint(event.clientX, event.clientY)
             const hoverNav = hoverEl ? hoverEl.closest(".Nav") : null
             if (hoverNav && hoverNav !== touchDraggedNav) {
-              if (dropTargetNav && dropTargetNav !== hoverNav) {
-                dropTargetNav.classList.remove("drop-target")
-              }
-              dropTargetNav = hoverNav
-              hoverNav.classList.add("drop-target")
+              setDropTargetToNav(hoverNav)
+              return
             }
+            const hoverSection = hoverEl ? hoverEl.closest(".links-section") : null
+            if (hoverSection) {
+              setDropTargetToSection(hoverSection)
+              return
+            }
+            clearDropTargetState()
           }
           return
         }
@@ -972,9 +1114,7 @@
         if (touchDraggedNav) {
           touchDraggedNav.classList.remove("dragging")
         }
-        if (dropTargetNav) {
-          dropTargetNav.classList.remove("drop-target")
-        }
+        clearDropTargetState()
         touchDragPointerId = null
         touchDraggedNav = null
         touchDragStarted = false
@@ -986,6 +1126,9 @@
         if (touchDragStarted && dropTargetNav && dropTargetNav !== touchDraggedNav) {
           suppressEditClickUntil = Date.now() + 450
           queueLinkMove(touchDraggedNav, dropTargetNav)
+        } else if (touchDragStarted && dropTargetSection) {
+          suppressEditClickUntil = Date.now() + 450
+          queueLinkMoveToSection(touchDraggedNav, dropTargetSection)
         }
         clearTouchDrag()
       })
@@ -1010,15 +1153,21 @@
       linksRoot.addEventListener("dragover", (event) => {
         if (!editorState.enabled || !draggedNav) return
         const item = event.target.closest(".Nav")
-        if (!item || item === draggedNav) return
-        event.preventDefault()
-        if (dropTargetNav && dropTargetNav !== item) {
-          dropTargetNav.classList.remove("drop-target")
+        if (item && item !== draggedNav) {
+          event.preventDefault()
+          setDropTargetToNav(item)
+          if (event.dataTransfer) {
+            event.dataTransfer.dropEffect = "move"
+          }
+          return
         }
-        dropTargetNav = item
-        item.classList.add("drop-target")
-        if (event.dataTransfer) {
-          event.dataTransfer.dropEffect = "move"
+        const section = event.target.closest(".links-section")
+        if (section) {
+          event.preventDefault()
+          setDropTargetToSection(section)
+          if (event.dataTransfer) {
+            event.dataTransfer.dropEffect = "move"
+          }
         }
       })
 
@@ -1026,20 +1175,23 @@
         if (!editorState.enabled || !draggedNav) return
         event.preventDefault()
         const target = event.target.closest(".Nav") || dropTargetNav
-        if (!target || target === draggedNav) return
+        if (target && target !== draggedNav) {
+          suppressEditClickUntil = Date.now() + 350
+          queueLinkMove(draggedNav, target)
+          return
+        }
+        const section = event.target.closest(".links-section") || dropTargetSection
+        if (!section) return
         suppressEditClickUntil = Date.now() + 350
-        queueLinkMove(draggedNav, target)
+        queueLinkMoveToSection(draggedNav, section)
       })
 
       linksRoot.addEventListener("dragend", () => {
         if (draggedNav) {
           draggedNav.classList.remove("dragging")
         }
-        if (dropTargetNav) {
-          dropTargetNav.classList.remove("drop-target")
-        }
         draggedNav = null
-        dropTargetNav = null
+        clearDropTargetState()
       })
 
       iconModal.addEventListener("click", (event) => {
