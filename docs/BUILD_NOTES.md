@@ -7,6 +7,11 @@
 - New per-section buttons are inserted into the selected section instead of always appending to the bottom.
 - The existing edit modal opens immediately for the newly created button so its label, link, and icon can be edited.
 
+### Unified Edit Modal Save
+- Replaced separate label/link save actions with one modal Save button.
+- Icon selection and icon clearing now stage changes in the modal instead of saving immediately.
+- Saving the modal applies label, link, and icon changes together, then closes the modal.
+
 ## 2026-03-11
 
 ### Modal Icon Color Match

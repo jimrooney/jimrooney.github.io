@@ -44,12 +44,10 @@
         <div class="icon-edit-row">
           <label for="iconLabelInput">Label</label>
           <input id="iconLabelInput" type="text" placeholder="Button label" />
-          <button id="iconSaveLabelBtn" class="editor-btn" type="button">Save Label</button>
         </div>
         <div class="icon-edit-row">
           <label for="iconHrefInput">Link</label>
           <input id="iconHrefInput" type="text" placeholder="https://example.com" />
-          <button id="iconSaveHrefBtn" class="editor-btn" type="button">Save Link</button>
         </div>
         <div class="icon-search-row">
           <select id="iconSetSelect" aria-label="Icon set">
@@ -70,6 +68,7 @@
         <div class="icon-modal-actions">
           <a class="icon-chooser-link" href="icon-chooser.html" target="_blank" rel="noopener noreferrer">Open full icon chooser</a>
           <button id="iconClearBtn" class="editor-btn" type="button">Clear Icon</button>
+          <button id="iconSaveBtn" class="editor-btn" type="button">Save</button>
           <button id="iconCancelBtn" class="editor-btn" type="button">Cancel</button>
         </div>
       </div>
@@ -84,6 +83,7 @@
         token: localStorage.getItem("iconEditorToken") || "",
         jsonSheetName: "LinksJson",
         targetAnchor: null,
+        pendingIcon: "",
         items: [],
         dirty: false,
         nextItemId: 1
@@ -252,11 +252,10 @@
       const iconSearchInput = document.getElementById("iconSearchInput")
       const iconSearchStatus = document.getElementById("iconSearchStatus")
       const iconLabelInput = document.getElementById("iconLabelInput")
-      const iconSaveLabelBtn = document.getElementById("iconSaveLabelBtn")
       const iconHrefInput = document.getElementById("iconHrefInput")
-      const iconSaveHrefBtn = document.getElementById("iconSaveHrefBtn")
       const iconChoices = document.getElementById("iconChoices")
       const iconClearBtn = document.getElementById("iconClearBtn")
+      const iconSaveBtn = document.getElementById("iconSaveBtn")
       const iconCancelBtn = document.getElementById("iconCancelBtn")
       let iconSearchTimer = null
       let iconSearchToken = 0
@@ -643,19 +642,17 @@
         }
       }
 
-      const saveIconToSheet = async (anchor, icon) => {
+      const saveModalSettings = async () => {
+        const anchor = editorState.targetAnchor
         if (!anchor) return
-        const item = findItemById(anchor.dataset.itemId || "")
-        if (!item || item.type !== "link") return
-        item.icon = String(icon || "")
-        applyIconToAnchor(anchor, icon)
-        markDirty("Queued dashboard changes. Exit edit mode to save.")
-      }
-
-      const saveLabelToSheet = async (anchor, label) => {
-        const cleanLabel = String(label || "").trim()
+        const cleanLabel = String(iconLabelInput.value || "").trim()
+        const cleanHref = normalizeHref(iconHrefInput.value)
         if (!cleanLabel) {
           setStatus("Label cannot be empty.")
+          return
+        }
+        if (!cleanHref) {
+          setStatus("Link cannot be empty.")
           return
         }
 
@@ -663,26 +660,12 @@
           const item = findItemById(anchor?.dataset?.itemId || "")
           if (!item || item.type !== "link") return
           item.label = cleanLabel
-          applyLabelToAnchor(anchor, cleanLabel)
-          markDirty("Queued dashboard changes. Exit edit mode to save.")
-          closeModal()
-        } catch (error) {
-          setStatus(`Save failed: ${error.message}`)
-        }
-      }
-
-      const saveHrefToSheet = async (anchor, hrefRaw) => {
-        const cleanHref = normalizeHref(hrefRaw)
-        if (!cleanHref) {
-          setStatus("Link cannot be empty.")
-          return
-        }
-        try {
-          const item = findItemById(anchor?.dataset?.itemId || "")
-          if (!item || item.type !== "link") return
           item.href = cleanHref
+          item.icon = String(editorState.pendingIcon || "")
+          applyLabelToAnchor(anchor, cleanLabel)
           anchor.setAttribute("href", cleanHref)
           iconHrefInput.value = cleanHref
+          applyIconToAnchor(anchor, item.icon)
           markDirty("Queued dashboard changes. Exit edit mode to save.")
           closeModal()
         } catch (error) {
@@ -893,6 +876,14 @@
         iconModal.classList.add("hidden")
       }
 
+      const syncSelectedIconChoice = () => {
+        iconChoices.querySelectorAll(".icon-choice").forEach((button) => {
+          const selected = (button.dataset.icon || "") === editorState.pendingIcon
+          button.classList.toggle("selected", selected)
+          button.setAttribute("aria-pressed", selected ? "true" : "false")
+        })
+      }
+
       const renderIconChoices = (iconIds, emptyText) => {
         if (!iconIds.length) {
           iconChoices.innerHTML = `<div class="icon-empty">${esc(emptyText || "No icons found.")}</div>`
@@ -901,7 +892,8 @@
         iconChoices.innerHTML = iconIds
           .map((iconId) => {
             const src = `https://api.iconify.design/${encodeURIComponent(iconId)}.svg`
-            return `<button type="button" class="icon-choice" data-icon="${esc(iconId)}"><img src="${esc(src)}" alt="${esc(iconId)}" /><span>${esc(iconId)}</span></button>`
+            const selected = iconId === editorState.pendingIcon
+            return `<button type="button" class="icon-choice${selected ? " selected" : ""}" data-icon="${esc(iconId)}" aria-pressed="${selected ? "true" : "false"}"><img src="${esc(src)}" alt="${esc(iconId)}" /><span>${esc(iconId)}</span></button>`
           })
           .join("")
       }
@@ -957,6 +949,7 @@
         iconLabelInput.value = anchor.dataset.label || ""
         iconHrefInput.value = anchor.getAttribute("href") || ""
         const currentIcon = String(anchor.dataset.icon || "").trim()
+        editorState.pendingIcon = currentIcon
         const defaultSet = currentIcon.includes(":") ? currentIcon.split(":")[0] : "mdi"
         selectedIconSet = curatedIconsBySet[defaultSet] ? defaultSet : "mdi"
         iconSetSelect.value = selectedIconSet
@@ -985,37 +978,30 @@
       addLinkBtn.addEventListener("click", addLinkRow)
       addSectionBtn.addEventListener("click", addSectionAtEnd)
       iconCancelBtn.addEventListener("click", closeModal)
-      iconClearBtn.addEventListener("click", async () => {
+      iconClearBtn.addEventListener("click", () => {
         if (!editorState.targetAnchor) return
-        await saveIconToSheet(editorState.targetAnchor, "")
-        closeModal()
+        editorState.pendingIcon = ""
+        syncSelectedIconChoice()
+        setStatus("Icon cleared. Click Save to apply.")
       })
+      iconSaveBtn.addEventListener("click", saveModalSettings)
 
-      iconChoices.addEventListener("click", async (event) => {
+      iconChoices.addEventListener("click", (event) => {
         const button = event.target.closest(".icon-choice")
         if (!button || !editorState.targetAnchor) return
-        await saveIconToSheet(editorState.targetAnchor, button.dataset.icon || "")
-        closeModal()
-      })
-      iconSaveLabelBtn.addEventListener("click", async () => {
-        if (!editorState.targetAnchor) return
-        await saveLabelToSheet(editorState.targetAnchor, iconLabelInput.value)
+        editorState.pendingIcon = button.dataset.icon || ""
+        syncSelectedIconChoice()
+        setStatus("Icon selected. Click Save to apply.")
       })
       iconLabelInput.addEventListener("keydown", async (event) => {
         if (event.key !== "Enter") return
         event.preventDefault()
-        if (!editorState.targetAnchor) return
-        await saveLabelToSheet(editorState.targetAnchor, iconLabelInput.value)
-      })
-      iconSaveHrefBtn.addEventListener("click", async () => {
-        if (!editorState.targetAnchor) return
-        await saveHrefToSheet(editorState.targetAnchor, iconHrefInput.value)
+        await saveModalSettings()
       })
       iconHrefInput.addEventListener("keydown", async (event) => {
         if (event.key !== "Enter") return
         event.preventDefault()
-        if (!editorState.targetAnchor) return
-        await saveHrefToSheet(editorState.targetAnchor, iconHrefInput.value)
+        await saveModalSettings()
       })
       iconSearchInput.addEventListener("input", (event) => {
         if (iconSearchTimer) clearTimeout(iconSearchTimer)

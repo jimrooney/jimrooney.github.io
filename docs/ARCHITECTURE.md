@@ -67,7 +67,7 @@
   - untitled sections show `+ Title Bar`, which inserts a local `section` item
   - drag-and-drop on link tiles reorders the DOM immediately and updates the local `items` array
   - clicking a link opens an icon modal
-  - modal label/link/icon edits update the local `items` array
+  - modal label/link/icon edits are staged in the modal and update the local `items` array together when Save is clicked
   - delete button removes a local `link` item
   - section delete removes the `section` boundary item but keeps any links by merging them into the neighboring section
   - exiting edit mode posts the full JSON document once
