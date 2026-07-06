@@ -1,5 +1,12 @@
 # Build Notes
 
+## 2026-07-07
+
+### Per-Section Button Creation
+- Added a `+ Button` control next to each per-section `+ Section` control in edit mode.
+- New per-section buttons are inserted into the selected section instead of always appending to the bottom.
+- The existing edit modal opens immediately for the newly created button so its label, link, and icon can be edited.
+
 ## 2026-03-11
 
 ### Modal Icon Color Match

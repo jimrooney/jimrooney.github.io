@@ -208,15 +208,21 @@ a:link {
   display: block;
 }
 
-.add-section-btn {
+.section-actions {
   display: none;
+  justify-content: center;
+  gap: 10px;
   margin: 14px auto 0;
+}
+
+.add-button-btn,
+.add-section-btn {
   font-size: 13px;
   padding: 6px 12px;
 }
 
-.edit-mode .links-section .add-section-btn {
-  display: block;
+.edit-mode .links-section .section-actions {
+  display: flex;
 }
 
 .links {

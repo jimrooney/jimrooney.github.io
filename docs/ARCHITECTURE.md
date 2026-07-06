@@ -61,7 +61,7 @@
 - `Configure Save API` button is visible only while edit mode is enabled.
 - Clicking outside tiles/controls exits edit mode.
 - In edit mode:
-  - add-button flow updates the local `items` array
+  - add-button flows update the local `items` array; global `Add Button` appends at the end, and per-section `+ Button` inserts into that section
   - `Add Section` can insert a new `section` item at the end of the dashboard
   - per-section `+ Section` can insert a new `section` item immediately after that section
   - untitled sections show `+ Title Bar`, which inserts a local `section` item

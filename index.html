@@ -461,10 +461,13 @@
 
       const syncSectionEditorUi = () => {
         const enabled = editorState.enabled
-        linksRoot.querySelectorAll(".add-section-title-btn, .add-section-btn, .delete-section-btn, .section-drop-slot").forEach((el) => {
+        linksRoot.querySelectorAll(".add-section-title-btn, .add-button-btn, .add-section-btn, .delete-section-btn, .section-drop-slot").forEach((el) => {
           el.hidden = !enabled
         })
       }
+
+      const sectionActionsMarkup = () =>
+        `<div class="section-actions"><button type="button" class="add-button-btn editor-btn">+ Button</button><button type="button" class="add-section-btn editor-btn">+ Section</button></div>`
 
       const createSectionContainer = (title = "", sectionItemId = "") => {
         const section = document.createElement("div")
@@ -475,9 +478,9 @@
           ? `<button type="button" class="delete-section-btn" title="Remove section" aria-label="Remove section" data-section-item-id="${esc(sectionItemId)}">-</button>`
           : ""
         if (safeTitle) {
-          section.innerHTML = `<div class="section-header"><div class="section-title">${safeTitle}</div>${deleteControl}</div><div class="links"></div><div class="section-drop-slot" aria-hidden="true">Drop button here</div><button type="button" class="add-section-btn editor-btn">+ Section</button>`
+          section.innerHTML = `<div class="section-header"><div class="section-title">${safeTitle}</div>${deleteControl}</div><div class="links"></div><div class="section-drop-slot" aria-hidden="true">Drop button here</div>${sectionActionsMarkup()}`
         } else {
-          section.innerHTML = `<div class="section-header"><button type="button" class="add-section-title-btn editor-btn">+ Title Bar</button>${deleteControl}</div><div class="links"></div><div class="section-drop-slot" aria-hidden="true">Drop button here</div><button type="button" class="add-section-btn editor-btn">+ Section</button>`
+          section.innerHTML = `<div class="section-header"><button type="button" class="add-section-title-btn editor-btn">+ Title Bar</button>${deleteControl}</div><div class="links"></div><div class="section-drop-slot" aria-hidden="true">Drop button here</div>${sectionActionsMarkup()}`
         }
         linksRoot.appendChild(section)
         return section
@@ -834,6 +837,22 @@
         return editorState.items.length
       }
 
+      const addButtonToSection = async (sectionEl) => {
+        if (!sectionEl || !editorState.enabled) return
+        const nextButton = normalizeItem({
+          type: "link",
+          label: "New Button",
+          href: "",
+          icon: ""
+        })
+        const insertIndex = getInsertIndexAfterSection(sectionEl)
+        editorState.items.splice(insertIndex, 0, nextButton)
+        renderItems()
+        markDirty("Button added. Edit it, then exit edit mode to save.")
+        const anchor = linksRoot.querySelector(`a.BlueBox[data-item-id="${nextButton.id}"]`)
+        if (anchor) openModal(anchor)
+      }
+
       const addSectionAfter = async (sectionEl) => {
         if (!sectionEl || !editorState.enabled) return
         const title = (prompt("Section title", "New Section") || "").trim()
@@ -1034,6 +1053,15 @@
           event.stopPropagation()
           const section = addSectionBtn.closest(".links-section")
           if (section) addSectionAfter(section)
+          return
+        }
+
+        const addButtonBtn = event.target.closest(".add-button-btn")
+        if (addButtonBtn && editorState.enabled) {
+          event.preventDefault()
+          event.stopPropagation()
+          const section = addButtonBtn.closest(".links-section")
+          if (section) addButtonToSection(section)
           return
         }
 
