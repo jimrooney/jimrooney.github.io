@@ -292,17 +292,22 @@
 
       const buildSaveMatrixRain = () => {
         if (!saveMatrixRain || saveMatrixRain.children.length) return
-        const glyphs = "JIMROONEY0123456789LINKSAVE"
-        const columns = 34
+        const glyphs = "0101010110JIMROONEYLINKSAVE{}[]<>/\\\\|+-=:_"
+        const columns = 62
         for (let index = 0; index < columns; index += 1) {
           const column = document.createElement("span")
           column.className = "save-matrix-column"
-          column.style.left = `${(index / columns) * 100}%`
-          column.style.animationDelay = `${-(index % 9) * 0.32}s`
-          column.style.animationDuration = `${2.4 + (index % 7) * 0.28}s`
+          const offset = ((index * 17) % columns) / columns
+          column.style.left = `${offset * 100}%`
+          column.style.animationDelay = `${-(index % 13) * 0.24}s`
+          column.style.animationDuration = `${2.2 + (index % 11) * 0.22}s`
+          column.style.setProperty("--stream-size", `${12 + (index % 5) * 2}px`)
+          column.dataset.head = glyphs[(index * 11) % glyphs.length]
           let text = ""
-          for (let row = 0; row < 26; row += 1) {
-            text += `${glyphs[(index * 7 + row * 5) % glyphs.length]}\n`
+          for (let row = 0; row < 42; row += 1) {
+            const gap = (index + row) % 11 === 0
+            const glyph = gap ? " " : glyphs[(index * 7 + row * 5) % glyphs.length]
+            text += `${glyph}\n`
           }
           column.textContent = text
           saveMatrixRain.appendChild(column)

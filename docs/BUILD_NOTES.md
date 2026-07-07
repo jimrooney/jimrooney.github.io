@@ -15,6 +15,7 @@
 ### Save Overlay Animation
 - Added a blue falling-text background layer while edit-mode button state is being saved.
 - Kept the save animation behind the cards so the dashboard remains visually dominant.
+- Tuned the animation toward a denser Matrix-style look with varied stream speeds, faded trails, and bright leading glyphs.
 - The overlay appears only during the full dashboard JSON save and respects reduced-motion preferences.
 
 ## 2026-03-11

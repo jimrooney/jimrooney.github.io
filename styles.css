@@ -359,29 +359,52 @@ a:link {
   inset: -22% 0;
   pointer-events: none;
   overflow: hidden;
-  color: rgba(116, 224, 255, 0.68);
+  color: rgba(116, 224, 255, 0.7);
   font-family: "Orbitron", "Rajdhani", monospace;
-  font-size: clamp(13px, 1.5vw, 20px);
-  line-height: 1.05;
-  text-shadow: 0 0 10px rgba(55, 222, 255, 0.78);
+  text-shadow:
+    0 0 6px rgba(55, 222, 255, 0.72),
+    0 0 14px rgba(55, 222, 255, 0.34);
 }
 
 .save-matrix-column {
   position: absolute;
-  top: -55%;
+  top: -78%;
+  width: 1.2ch;
   white-space: pre;
-  opacity: 0.72;
+  text-align: center;
+  font-size: var(--stream-size, 14px);
+  line-height: 0.94;
+  letter-spacing: 0.06em;
+  opacity: 0.78;
   animation-name: save-matrix-fall;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.2) 12%, #000 42%, #000 82%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.2) 12%, #000 42%, #000 82%, transparent 100%);
+}
+
+.save-matrix-column::after {
+  content: attr(data-head);
+  position: absolute;
+  left: 0;
+  bottom: 0.1em;
+  width: 100%;
+  color: #ecfbff;
+  text-shadow:
+    0 0 8px rgba(229, 249, 255, 0.95),
+    0 0 18px rgba(55, 222, 255, 0.72);
 }
 
 .save-matrix-column:nth-child(3n) {
-  opacity: 0.44;
+  opacity: 0.42;
 }
 
 .save-matrix-column:nth-child(4n) {
-  color: rgba(217, 248, 255, 0.9);
+  color: rgba(194, 242, 255, 0.82);
+}
+
+.save-matrix-column:nth-child(5n) {
+  line-height: 0.82;
 }
 
 .save-matrix-message {
@@ -404,10 +427,10 @@ a:link {
 
 @keyframes save-matrix-fall {
   from {
-    transform: translateY(-10%);
+    transform: translateY(-8%);
   }
   to {
-    transform: translateY(155%);
+    transform: translateY(168%);
   }
 }
 
