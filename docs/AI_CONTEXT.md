@@ -11,6 +11,18 @@ The site uses plain HTML, CSS, and JavaScript with no build system.
 - EDIT_MODE_SETUP.md → describes edit-mode behavior
 - icon-chooser.html → UI tool for browsing Iconify icon libraries
 
+## Dashboard Data And Save API
+
+- Spreadsheet ID: `1ZQDN58WT5hdFVYiJA7yIJocm4vbc0Gw8ecJUj1pkYwg`
+- Spreadsheet URL: `https://docs.google.com/spreadsheets/d/1ZQDN58WT5hdFVYiJA7yIJocm4vbc0Gw8ecJUj1pkYwg/edit`
+- Frontend reads dashboard JSON from `LinksJson!A1` and falls back to the legacy `Links` tab.
+- Current Apps Script Web App URL for saving:
+  `https://script.google.com/macros/s/AKfycbyaytadrJf0B5DvSvt5JN3IttAt_0_SpBm8_hcdHLbuZZZeu44eU5ELUit7DapASMh7EQ/exec`
+- The shared save token is defined in `apps-script/Code.js` as `SHARED_TOKEN`; do not duplicate it in docs or chat unless the user explicitly asks to display it.
+- `Configure Save API` stores endpoint/token in browser `localStorage`, so each browser/device may need configuration.
+- If save fails with an HTML/non-JSON response, the configured endpoint is probably the spreadsheet URL, Apps Script editor URL, `/dev` URL, or a deployment that is not accessible to `Anyone`.
+- If save fails with `Unauthorized`, the Web App URL is reachable and the token is wrong or the deployed Apps Script is using a different token.
+
 ## Development Rules
 
 When modifying this project:
