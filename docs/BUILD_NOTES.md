@@ -18,6 +18,10 @@
 - Tuned the animation toward a denser Matrix-style look with varied stream speeds, faded trails, and bright leading glyphs.
 - The overlay appears only during the full dashboard JSON save and respects reduced-motion preferences.
 
+### Save API Diagnostics
+- Added clearer handling for non-JSON Save API responses, including the common Apps Script HTML response caused by a wrong URL or access setting.
+- Warn when the configured Apps Script Web App URL does not end with `/exec`.
+
 ## 2026-03-11
 
 ### Modal Icon Color Match

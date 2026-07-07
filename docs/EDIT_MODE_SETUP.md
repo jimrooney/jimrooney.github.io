@@ -120,11 +120,12 @@ function jsonResponse(payload) {
    - Who has access: `Anyone`
 5. Copy the Web App URL.
 6. On your site, enable `Edit Mode`, then click `Configure Save API` and paste:
-   - Web App URL
+   - Web App URL ending in `/exec`
    - same shared token
 
 ## Notes
 
 - Save happens once when edit mode exits.
 - If the Save API is not configured, you can still edit locally and discard queued changes on exit.
+- `Unexpected token '<'` means the configured save URL returned an HTML page instead of JSON. Recheck that the URL is the Apps Script Web App `/exec` URL, not the spreadsheet URL or Apps Script editor URL, and that the deployment access is `Anyone`.
 - The old row-based Apps Script actions are no longer used by the frontend.
