@@ -58,6 +58,8 @@ center {
   width: min(1460px, 94vw);
   margin: 0 auto;
   padding: 28px 0 20px;
+  position: relative;
+  z-index: 1;
 }
 
 a:visited,
@@ -83,6 +85,7 @@ a:link {
   padding: 20px 28px 16px;
   backdrop-filter: blur(3px);
   position: relative;
+  z-index: 2;
   overflow: hidden;
 }
 
@@ -156,6 +159,8 @@ a:link {
   margin: 0 auto;
   display: grid;
   gap: 14px;
+  position: relative;
+  z-index: 2;
 }
 
 .links-section {
@@ -304,6 +309,8 @@ a:link {
   justify-content: center;
   flex-wrap: wrap;
   gap: 10px;
+  position: relative;
+  z-index: 2;
 }
 
 .editor-btn {
@@ -332,15 +339,15 @@ a:link {
 .save-matrix-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1100;
+  z-index: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  pointer-events: none;
   background:
-    radial-gradient(circle at 50% 44%, rgba(60, 203, 255, 0.16), transparent 32%),
-    rgba(2, 10, 26, 0.78);
-  backdrop-filter: blur(3px);
+    radial-gradient(circle at 50% 44%, rgba(60, 203, 255, 0.18), transparent 32%),
+    linear-gradient(180deg, rgba(2, 10, 26, 0.12), rgba(2, 10, 26, 0.28));
 }
 
 .save-matrix-overlay.hidden {
@@ -352,7 +359,7 @@ a:link {
   inset: -22% 0;
   pointer-events: none;
   overflow: hidden;
-  color: rgba(116, 224, 255, 0.82);
+  color: rgba(116, 224, 255, 0.68);
   font-family: "Orbitron", "Rajdhani", monospace;
   font-size: clamp(13px, 1.5vw, 20px);
   line-height: 1.05;
@@ -392,6 +399,7 @@ a:link {
   box-shadow:
     0 0 0 1px rgba(75, 189, 245, 0.34) inset,
     0 0 28px rgba(55, 222, 255, 0.32);
+  opacity: 0.78;
 }
 
 @keyframes save-matrix-fall {

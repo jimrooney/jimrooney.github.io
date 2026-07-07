@@ -70,7 +70,7 @@
   - modal label/link/icon edits are staged in the modal and update the local `items` array together when Save is clicked
   - delete button removes a local `link` item
   - section delete removes the `section` boundary item but keeps any links by merging them into the neighboring section
-  - exiting edit mode posts the full JSON document once and shows a blue falling-text save overlay while the request is in flight
+  - exiting edit mode posts the full JSON document once and shows a blue falling-text background layer behind the cards while the request is in flight
 - API configuration (endpoint + token) is stored in browser `localStorage`.
 
 ## Apps Script Contract
