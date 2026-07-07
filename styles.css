@@ -329,6 +329,87 @@ a:link {
   color: #9fd8f6;
 }
 
+.save-matrix-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 44%, rgba(60, 203, 255, 0.16), transparent 32%),
+    rgba(2, 10, 26, 0.78);
+  backdrop-filter: blur(3px);
+}
+
+.save-matrix-overlay.hidden {
+  display: none;
+}
+
+.save-matrix-rain {
+  position: absolute;
+  inset: -22% 0;
+  pointer-events: none;
+  overflow: hidden;
+  color: rgba(116, 224, 255, 0.82);
+  font-family: "Orbitron", "Rajdhani", monospace;
+  font-size: clamp(13px, 1.5vw, 20px);
+  line-height: 1.05;
+  text-shadow: 0 0 10px rgba(55, 222, 255, 0.78);
+}
+
+.save-matrix-column {
+  position: absolute;
+  top: -55%;
+  white-space: pre;
+  opacity: 0.72;
+  animation-name: save-matrix-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.save-matrix-column:nth-child(3n) {
+  opacity: 0.44;
+}
+
+.save-matrix-column:nth-child(4n) {
+  color: rgba(217, 248, 255, 0.9);
+}
+
+.save-matrix-message {
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(95, 214, 255, 0.86);
+  border-radius: 14px;
+  padding: 14px 20px;
+  background: linear-gradient(180deg, rgba(9, 39, 82, 0.92) 0%, rgba(4, 22, 50, 0.96) 100%);
+  color: #e3f9ff;
+  font-family: "Orbitron", "Rajdhani", sans-serif;
+  font-size: clamp(18px, 2vw, 28px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow:
+    0 0 0 1px rgba(75, 189, 245, 0.34) inset,
+    0 0 28px rgba(55, 222, 255, 0.32);
+}
+
+@keyframes save-matrix-fall {
+  from {
+    transform: translateY(-10%);
+  }
+  to {
+    transform: translateY(155%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .save-matrix-column {
+    animation: none;
+    top: 0;
+  }
+}
+
 .edit-mode .links a.BlueBox {
   outline: 2px dashed rgba(125, 229, 255, 0.78);
   outline-offset: 2px;

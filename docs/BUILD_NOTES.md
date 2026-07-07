@@ -12,6 +12,10 @@
 - Icon selection and icon clearing now stage changes in the modal instead of saving immediately.
 - Saving the modal applies label, link, and icon changes together, then closes the modal.
 
+### Save Overlay Animation
+- Added a blue falling-text overlay while edit-mode button state is being saved.
+- The overlay appears only during the full dashboard JSON save and respects reduced-motion preferences.
+
 ## 2026-03-11
 
 ### Modal Icon Color Match

@@ -37,6 +37,10 @@
       <button id="addSectionBtn" class="editor-btn" type="button" hidden>Add Section</button>
       <span id="editorStatus" class="editor-status"></span>
     </div>
+    <div id="saveMatrixOverlay" class="save-matrix-overlay hidden" role="status" aria-live="polite" aria-label="Saving button state">
+      <div id="saveMatrixRain" class="save-matrix-rain" aria-hidden="true"></div>
+      <div class="save-matrix-message">Saving button state...</div>
+    </div>
     <div id="iconModal" class="icon-modal hidden" role="dialog" aria-modal="true" aria-labelledby="iconModalTitle">
       <div class="icon-modal-content">
         <h3 id="iconModalTitle">Choose Icon</h3>
@@ -242,6 +246,8 @@
 
       const statusEl = document.getElementById("editorStatus")
       const linksRoot = document.getElementById("LinkContainer")
+      const saveMatrixOverlay = document.getElementById("saveMatrixOverlay")
+      const saveMatrixRain = document.getElementById("saveMatrixRain")
       const editModeToggle = document.getElementById("editModeToggle")
       const editorConfigBtn = document.getElementById("editorConfigBtn")
       const addLinkBtn = document.getElementById("addLinkBtn")
@@ -282,6 +288,31 @@
 
       const setStatus = (text) => {
         statusEl.textContent = text
+      }
+
+      const buildSaveMatrixRain = () => {
+        if (!saveMatrixRain || saveMatrixRain.children.length) return
+        const glyphs = "JIMROONEY0123456789LINKSAVE"
+        const columns = 34
+        for (let index = 0; index < columns; index += 1) {
+          const column = document.createElement("span")
+          column.className = "save-matrix-column"
+          column.style.left = `${(index / columns) * 100}%`
+          column.style.animationDelay = `${-(index % 9) * 0.32}s`
+          column.style.animationDuration = `${2.4 + (index % 7) * 0.28}s`
+          let text = ""
+          for (let row = 0; row < 26; row += 1) {
+            text += `${glyphs[(index * 7 + row * 5) % glyphs.length]}\n`
+          }
+          column.textContent = text
+          saveMatrixRain.appendChild(column)
+        }
+      }
+
+      const setSaveMatrixVisible = (visible) => {
+        if (!saveMatrixOverlay) return
+        if (visible) buildSaveMatrixRain()
+        saveMatrixOverlay.classList.toggle("hidden", !visible)
       }
 
       const normalizeHref = (hrefRaw) => {
@@ -538,6 +569,7 @@
 
         editorState.flushing = true
         try {
+          setSaveMatrixVisible(true)
           setStatus("Saving dashboard...")
           await callEditorApi({
             action: "set_links_json",
@@ -556,6 +588,7 @@
           return false
         } finally {
           editorState.flushing = false
+          setSaveMatrixVisible(false)
         }
       }
 
