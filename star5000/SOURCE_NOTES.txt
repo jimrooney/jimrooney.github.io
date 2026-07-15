@@ -1,0 +1,8 @@
+SOURCE NOTES
+
+The STAR 5000 has been described in public listings as an unsupported VFR GPS navigator
+that provides bearing, distance, ETE, ETA, groundspeed and ground track.
+
+This trainer does not reproduce copyrighted manual pages or proprietary software.
+Its display and workflows are educational approximations based on the visible faceplate,
+general GPS conventions and public product descriptions.

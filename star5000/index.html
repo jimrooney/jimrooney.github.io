@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>STAR 5000 Interactive Familiarization Trainer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div>
+    <p class="eyebrow">Cessna 172 avionics familiarization</p>
+    <h1>STAR 5000 Interactive Trainer</h1>
+    <p class="subtitle">A browser-based procedural mock-up for learning the panel layout, navigation data, Direct-To workflow and descent-rate use.</p>
+  </div>
+  <button id="resetAll" class="secondary">Reset trainer</button>
+</header>
+
+<main class="layout">
+  <section class="trainer-column">
+    <div class="warning">
+      <strong>Training mock-up:</strong> This is not an exact software emulation and must not be used as an operating reference.
+      Verify real button sequences and approved functions against the installed aircraft documents and correct pilot guide.
+    </div>
+
+    <div class="unit-wrap">
+      <div class="unit" aria-label="STAR 5000 procedural trainer">
+        <div class="brand-left">GPS</div>
+
+        <div class="top-buttons">
+          <button data-key="APT">APT</button>
+          <button data-key="VOR">VOR</button>
+          <button data-key="ARR">ARRIV</button>
+        </div>
+
+        <div class="screen" id="screen" role="status" aria-live="polite">
+          <div class="screen-line status" id="screenStatus">SELF TEST COMPLETE</div>
+          <div class="screen-line main" id="screenMain">NAV 1  KMFV → KESN</div>
+          <div class="screen-line data" id="screenData">BRG 324°  DIS 43.2</div>
+          <div class="screen-line data" id="screenData2">GS 090KT  ETE 0:29</div>
+          <div class="cursor" id="cursor"></div>
+        </div>
+
+        <div class="knob-area">
+          <button id="knobLeft" class="knob-arrow" aria-label="Rotate knob left">◀</button>
+          <button id="knobPush" class="knob" aria-label="Push knob"></button>
+          <button id="knobRight" class="knob-arrow" aria-label="Rotate knob right">▶</button>
+        </div>
+
+        <div class="bottom-buttons">
+          <button data-key="MODE">MODE</button>
+          <button data-key="WRN">WRN</button>
+          <button data-key="TCA">TCA</button>
+          <button data-key="HLD">HLD</button>
+          <button data-key="CLR">CLR</button>
+          <button data-key="ENT" class="ent">ENT</button>
+        </div>
+
+        <div class="model">STAR 5000</div>
+      </div>
+    </div>
+
+    <div class="controls-card">
+      <h2>Simulation controls</h2>
+      <div class="control-grid">
+        <label>Groundspeed
+          <input id="gsSlider" type="range" min="55" max="130" value="90">
+          <output id="gsOut">90 kt</output>
+        </label>
+        <label>Current page
+          <select id="pageSelect">
+            <option value="NAV1">NAV 1 — primary navigation</option>
+            <option value="NAV2">NAV 2 — track and bearing</option>
+            <option value="POS">Position</option>
+            <option value="FPL">Flight plan</option>
+            <option value="MSG">Messages</option>
+          </select>
+        </label>
+      </div>
+      <p class="small">The slider represents changing GPS groundspeed. Watch the recommended 3° descent rate update in the lesson panel.</p>
+    </div>
+
+    <details class="reference">
+      <summary>View the installed unit photograph</summary>
+      <img src="assets/installed-unit-reference.png" alt="Photograph of the STAR 5000 installed in the user's Cessna 172 panel">
+    </details>
+  </section>
+
+  <aside class="lesson-column">
+    <section class="lesson-card">
+      <div class="lesson-head">
+        <div>
+          <p class="eyebrow">Guided exercise</p>
+          <h2 id="lessonTitle">Lesson 1: Find groundspeed</h2>
+        </div>
+        <span id="progress">1 / 5</span>
+      </div>
+
+      <p id="lessonText">Use the page selector or MODE button until the navigation page showing GS is displayed.</p>
+
+      <div class="objective" id="objective">
+        <strong>Task:</strong> Display a page containing groundspeed.
+      </div>
+
+      <div class="feedback" id="feedback">Awaiting input.</div>
+
+      <div class="lesson-actions">
+        <button id="hintBtn" class="secondary">Hint</button>
+        <button id="nextBtn" disabled>Next lesson</button>
+      </div>
+    </section>
+
+    <section class="lesson-card">
+      <h2>3° descent-rate aid</h2>
+      <div class="big-number"><span id="descentRate">477</span> fpm</div>
+      <p>Using the closer rule: <strong>groundspeed × 5.3</strong>.</p>
+      <table>
+        <thead><tr><th>GS</th><th>Approx. VS</th></tr></thead>
+        <tbody>
+          <tr><td>70 kt</td><td>370 fpm</td></tr>
+          <tr><td>80 kt</td><td>425 fpm</td></tr>
+          <tr><td>90 kt</td><td>480 fpm</td></tr>
+          <tr><td>100 kt</td><td>530 fpm</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="lesson-card">
+      <h2>Event log</h2>
+      <ol id="eventLog" class="event-log">
+        <li>Trainer initialized.</li>
+      </ol>
+    </section>
+  </aside>
+</main>
+
+<footer>
+  Standalone trainer. No internet connection required after download.
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
