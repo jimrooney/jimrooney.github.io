@@ -1,5 +1,12 @@
 # Build Notes
 
+## 2026-08-22
+
+### Apps Script Save Redirect Handling
+- Added the documented Apps Script `/exec` URL as the default Save API endpoint so a fresh browser only needs the shared token.
+- Switched Apps Script `/exec` save requests to opaque POSTs to avoid Google's `ContentService` redirect being parsed as an HTML failure page.
+- Kept JSON response parsing for non-Apps Script endpoints so normal API diagnostics still surface useful errors.
+
 ## 2026-07-07
 
 ### Per-Section Button Creation
