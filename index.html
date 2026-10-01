@@ -80,10 +80,14 @@
     <!-- Navbar takes the data loaded by root (from the google spreadsheet) and loops over it making links -->
     <script>
       // Navbar + edit mode
+      const DEFAULT_EDITOR_ENDPOINT =
+        "https://script.google.com/macros/s/AKfycbyaytadrJf0B5DvSvt5JN3IttAt_0_SpBm8_hcdHLbuZZZeu44eU5ELUit7DapASMh7EQ/exec"
+      const appsScriptExecPattern = /^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec(?:[?#].*)?$/
+
       const editorState = {
         enabled: false,
         flushing: false,
-        endpoint: localStorage.getItem("iconEditorEndpoint") || "",
+        endpoint: localStorage.getItem("iconEditorEndpoint") || DEFAULT_EDITOR_ENDPOINT,
         token: localStorage.getItem("iconEditorToken") || "",
         jsonSheetName: "LinksJson",
         targetAnchor: null,
@@ -332,13 +336,18 @@
         }
       }
 
-      const ensureEditorApiConfigured = () => {
-        if (editorState.endpoint && editorState.token) return true
-        configureEditorApi()
-        return Boolean(editorState.endpoint && editorState.token)
+      const currentEditorEndpoint = () => {
+        const endpoint = String(editorState.endpoint || "").trim()
+        return appsScriptExecPattern.test(endpoint) ? endpoint : DEFAULT_EDITOR_ENDPOINT
       }
 
-      const hasEditorApiConfigured = () => Boolean(editorState.endpoint && editorState.token)
+      const ensureEditorApiConfigured = () => {
+        if (currentEditorEndpoint() && editorState.token) return true
+        configureEditorApi()
+        return Boolean(currentEditorEndpoint() && editorState.token)
+      }
+
+      const hasEditorApiConfigured = () => Boolean(currentEditorEndpoint() && editorState.token)
 
       const setDraggableState = () => {
         linksRoot.querySelectorAll(".Nav").forEach((item) => {
@@ -645,13 +654,11 @@
         if (endpoint === null) return
         const token = prompt("Shared token (must match Apps Script)", editorState.token)
         if (token === null) return
-        editorState.endpoint = endpoint.trim()
+        editorState.endpoint = endpoint.trim() || DEFAULT_EDITOR_ENDPOINT
         editorState.token = token.trim()
         localStorage.setItem("iconEditorEndpoint", editorState.endpoint)
         localStorage.setItem("iconEditorToken", editorState.token)
-        if (!editorState.endpoint) {
-          setStatus("Save API not set.")
-        } else if (!/\/exec(?:[?#].*)?$/.test(editorState.endpoint)) {
+        if (!appsScriptExecPattern.test(editorState.endpoint)) {
           setStatus("Save API configured. Check that the Apps Script URL ends with /exec.")
         } else {
           setStatus("Save API configured.")
@@ -718,11 +725,17 @@
       }
 
       const callEditorApi = async (payload) => {
-        const response = await fetch(editorState.endpoint, {
+        const endpoint = currentEditorEndpoint()
+        const useOpaqueAppsScriptPost = appsScriptExecPattern.test(endpoint)
+        const response = await fetch(endpoint, {
           method: "POST",
+          mode: useOpaqueAppsScriptPost ? "no-cors" : "cors",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify(payload)
         })
+        if (response.type === "opaque") {
+          return { ok: true, opaque: true }
+        }
         const text = await response.text()
         let data = null
         try {
