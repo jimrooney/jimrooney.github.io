@@ -93,8 +93,6 @@
 - Checklist content and line position are stored locally. Google Sheet CSV
   downloads run only when Update is tapped, directly from the browser.
 - The app has no authentication, Sites hosting dependency, or phone/watch sync.
-- A 320 ms tap window distinguishes forward taps from double-tap backward
-  navigation. Scrolling and navigation changes cancel pending taps.
 - `quickbook.jimrooney.com` redirects to `https://jimrooney.com/quickbook/`
   through Jim's Cloudflare domain configuration.
 
