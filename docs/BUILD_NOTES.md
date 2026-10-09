@@ -1,5 +1,12 @@
 # Build Notes
 
+## 2026-10-09 — QuickBook for iPad
+
+- Added the standalone QuickBook app at `/quickbook/` with no sign-in.
+- Preserved manual spreadsheet updates, offline storage, tap-to-advance,
+  editable sections, and active-line section colors.
+- Verified direct Google CSV downloads and scoped offline asset caching.
+
 ## 2026-08-22
 
 ### Apps Script Save Redirect Handling

@@ -85,6 +85,17 @@
   - `mdi`, `lucide`, `heroicons-solid`, `heroicons-outline`, `tabler`, `fa6-solid`, `material-symbols`, `ion`, `ph`
 - Supports search and full library browsing with pagination.
 
+## QuickBook
+
+- `quickbook/` hosts an independent iPad Home Screen checklist app.
+- Source is maintained in `QuickBook/ipad/`; its static build is copied here.
+- The app caches its own assets under `/quickbook/` with a scoped service worker.
+- Checklist content and line position are stored locally. Google Sheet CSV
+  downloads run only when Update is tapped, directly from the browser.
+- The app has no authentication, Sites hosting dependency, or phone/watch sync.
+- `quickbook.jimrooney.com` redirects to `https://jimrooney.com/quickbook/`
+  through Jim's Cloudflare domain configuration.
+
 ## Publish Workflow
 - In this project, `publish` means:
   - update docs for the completed changes

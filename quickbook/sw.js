@@ -1,0 +1,7 @@
+const CACHE='quickbook-ipad-shell-26b7ca12093f9cdb';
+const ROOT=new URL('./',self.location.href);
+const ASSETS=['./','index.html','style.css','app.js','model.js','download.js','seed.js','manifest.webmanifest','icon.svg','icon-180.png','icon-192.png','icon-512.png'].map(path=>new URL(path,ROOT).href);
+self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(CACHE);for(const path of ASSETS){const response=await fetch(path,{cache:'reload'});if(!response.ok||response.redirected)throw Error('Offline setup failed');await cache.put(path,response);}await self.skipWaiting();})()));
+self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const name of await caches.keys())if(name.startsWith('quickbook-ipad-shell-')&&name!==CACHE)await caches.delete(name);await self.clients.claim();for(const client of await self.clients.matchAll())client.postMessage('offline-ready');})()));
+self.addEventListener('message',event=>{if(event.data==='check-ready')event.source?.postMessage('offline-ready');});
+self.addEventListener('fetch',event=>{const url=new URL(event.request.url);if(url.origin!==ROOT.origin||!url.pathname.startsWith(ROOT.pathname)||event.request.method!=='GET')return;event.respondWith((async()=>{const cached=await caches.match(event.request,{ignoreSearch:true});if(cached)return cached;if(event.request.mode==='navigate')return(await caches.match(ROOT.href))||Response.error();return fetch(event.request);})());});
