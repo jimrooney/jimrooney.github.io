@@ -1,6 +1,7 @@
 import {parseCsv,sections,lines,nextItem,aircraftNames} from './model.js';
 import {originals,initial,initialCsv} from './seed.js';
 import {downloadCsv} from './download.js';
+import {checklistTaps} from './taps.js';
 const $=id=>document.getElementById(id), key='quickbook-ipad-v1';
 let data=initial, position={aircraft:0,section:-1,item:0}, busy=false, savedCsv=null;
 try{const saved=JSON.parse(localStorage.getItem(key));if(saved){data=parseCsv(saved.csv);position=saved.position;savedCsv=saved.csv;}}catch{}
@@ -11,6 +12,7 @@ function save(csv=savedCsv){
 function savePosition(){try{save();}catch{$('status').textContent='Couldn’t save position';}}
 function button(text,action){const b=document.createElement('button');b.textContent=text;b.addEventListener('click',e=>{e.stopPropagation();action();});return b;}
 function render(scroll=false){
+  taps.cancel();
   const cards=data[position.aircraft], layout=sections(cards,originals[position.aircraft],position.aircraft);
   if(!Number.isInteger(position.section)||position.section< -1||position.section>=layout.length)position.section=-1;
   $('aircraft').replaceChildren(...aircraftNames.map((name,a)=>{const b=button(name,()=>{position={aircraft:a,section:-1,item:0};savePosition();render(true);});b.setAttribute('aria-pressed',String(a===position.aircraft));return b;}));
@@ -31,7 +33,16 @@ function render(scroll=false){
   if(scroll)requestAnimationFrame(()=>$('active-line')?.scrollIntoView({block:'nearest'}));
 }
 function advance(){if(position.section<0)return;const cards=data[position.aircraft], layout=sections(cards,originals[position.aircraft],position.aircraft);position.item=nextItem(position.item,lines(cards,layout,position.section).length);savePosition();render(true);}
-$('card').addEventListener('click',advance);
+function retreat(){if(position.section<0||position.item===0)return;position.item--;savePosition();render(true);}
+const taps=checklistTaps(advance,retreat);
+let pointerStart=null, moved=false;
+$('card').addEventListener('pointerdown',e=>{pointerStart={x:e.clientX,y:e.clientY};moved=false;});
+$('card').addEventListener('pointermove',e=>{if(pointerStart&&Math.hypot(e.clientX-pointerStart.x,e.clientY-pointerStart.y)>9){moved=true;taps.cancel();}});
+$('card').addEventListener('pointerup',()=>{pointerStart=null;});
+$('card').addEventListener('pointercancel',()=>{pointerStart=null;moved=true;taps.cancel();});
+$('card').addEventListener('scroll',()=>taps.cancel(),{passive:true});
+$('card').addEventListener('click',e=>{if(e.target.closest('button')||moved)return;if(e.detail===0)advance();else taps.tap();});
+$('card').addEventListener('dblclick',e=>e.preventDefault());
 $('card').addEventListener('keydown',e=>{if(e.target!==$('card'))return;if(e.key===' '||e.key==='Enter'){e.preventDefault();advance();}});
 $('home').addEventListener('click',()=>{position.section=-1;position.item=0;savePosition();render(true);});
 async function update(){
