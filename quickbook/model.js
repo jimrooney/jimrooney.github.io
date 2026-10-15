@@ -1,5 +1,5 @@
-import {aircraftNames,worksheetNames} from './seed.js';
-export {aircraftNames};
+// Display name for a worksheet; matches scripts/import_checklists.py.
+export const label=name=>name==='InFlight'?'In Flight':name;
 export function parseCsv(csv) {
   if (new TextEncoder().encode(csv).length > 524288) throw Error('Download is too large');
   csv = csv.replace(/^\uFEFF/, '');
@@ -19,23 +19,31 @@ export function parseCsv(csv) {
   if(quoted)throw Error('Unclosed CSV quote');
   if(cell||closed||row.length){row.push(cell);rows.push(row);}
   if(JSON.stringify(rows.shift())!==JSON.stringify(['aircraft','page','title','body','color']))throw Error('Expected aircraft,page,title,body,color columns');
-  const sets=worksheetNames.map(()=>new Map());
+  const sets=new Map();
   for(const r of rows){
     if(r.every(v=>!v.trim()))continue;
     if(r.length!==5)throw Error('Expected five columns');
-    const a=worksheetNames.indexOf(r[0].trim()), number=r[1].trim();
-    if(a<0)throw Error('Unknown aircraft');
+    const name=r[0].trim(), number=r[1].trim();
+    if(!name)throw Error('Missing worksheet name');
+    if(!sets.has(name))sets.set(name,new Map());
     if(!/^\+?\d+$/.test(number)||Number(number)<1||Number(number)>2147483647)throw Error('Invalid page number');
     const page=Number(number);
-    if(sets[a].has(page))throw Error('Duplicate aircraft/page');
+    if(sets.get(name).has(page))throw Error('Duplicate aircraft/page');
     if(!r[2].trim()||r[2].length>200||r[3].length>20000)throw Error('Invalid card text');
     if(!/^#[0-9a-f]{6}$/i.test(r[4]))throw Error('Invalid card color');
-    sets[a].set(page,{title:r[2],body:r[3],color:r[4]});
+    sets.get(name).set(page,{title:r[2],body:r[3],color:r[4]});
   }
-  return sets.map((set,a)=>{
-    if(!set.has(1)||set.size<2)throw Error('Keep a title card and checklist for '+aircraftNames[a]);
-    return [...set].sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+  if(!sets.size)throw Error('No checklists');
+  return [...sets].map(([name,set])=>{
+    if(!set.has(1)||set.size<2)throw Error('Keep a title card and checklist for '+label(name));
+    return {name,label:label(name),cards:[...set].sort((x,y)=>x[0]-y[0]).map(x=>x[1])};
   });
+}
+// Same minimal quoting as Python's csv module, so bundled and downloaded data share one format.
+export function toCsv(sheets){
+  const cell=value=>/[",\r\n]/.test(value)?'"'+value.replaceAll('"','""')+'"':value;
+  const rows=sheets.flatMap(s=>s.cards.map((c,i)=>[s.name,String(i+1),c.title,c.body,c.color].map(cell).join(',')));
+  return ['aircraft,page,title,body,color',...rows].join('\n')+'\n';
 }
 export function foreground(color){
   const rgb=color.slice(1).match(/../g).map(c=>parseInt(c,16)/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4);

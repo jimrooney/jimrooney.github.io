@@ -1,4 +1,4 @@
-import {aircraftNames,parseCsv} from './model.js';
+import {parseCsv} from './model.js';
 
 export const storageKey='quickbook-ipad-v2';
 export const isNative=()=>Boolean(globalThis.Capacitor?.isNativePlatform());
@@ -6,9 +6,10 @@ export const isNative=()=>Boolean(globalThis.Capacitor?.isNativePlatform());
 export function decodeState(value){
   if(value===null)return null;
   const state=JSON.parse(value);
-  parseCsv(state.csv);
+  const sheets=parseCsv(state.csv);
+  if(state.downloaded!==undefined&&state.downloaded!==true)throw Error('Invalid download flag');
   const p=state.position;
-  if(!p||!Number.isInteger(p.aircraft)||p.aircraft<0||p.aircraft>=aircraftNames.length||
+  if(!p||!Number.isInteger(p.aircraft)||p.aircraft<0||p.aircraft>=sheets.length||
     !Number.isInteger(p.section)||p.section< -1||!Number.isInteger(p.item)||p.item<0)
     throw Error('Invalid saved position');
   return state;
