@@ -209,12 +209,13 @@
         </div>
         <div class="row">
           <div class="label">Icon URL</div>
-          <div id="urlOut" class="out">https://api.iconify.design/mdi:airplane.svg</div>
+          <div id="urlOut" class="out">https://api.iconify.design/mdi/airplane.svg</div>
           <button id="copyUrl" type="button">Copy URL</button>
         </div>
       </section>
     </main>
 
+    <script src="iconify.js"></script>
     <script>
       const iconSets = {
         mdi: {
@@ -403,7 +404,7 @@
       }
 
       function iconUrl(id) {
-        return `https://api.iconify.design/${id}.svg`;
+        return `https://api.iconify.design/${id.replace(":", "/")}.svg`;
       }
 
       function currentPrefix() {
@@ -494,13 +495,14 @@
           const card = document.createElement("button");
           card.type = "button";
           card.className = `card${name === selectedName ? " selected" : ""}`;
-          card.innerHTML = `<img src="${iconUrl(id)}" alt="${name}" /><div class="name">${name}</div>`;
+          card.innerHTML = `<img data-iconify="${id}" alt="${name}" /><div class="name">${name}</div>`;
           card.addEventListener("click", () => {
             setSelection(name);
             render(search.value);
           });
           grid.appendChild(card);
         });
+        IconifyImages.load(grid);
       }
 
       async function copyText(text, el, doneText) {

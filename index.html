@@ -20,13 +20,15 @@
         >
           <img
             class="header-home-icon"
-            src="https://api.iconify.design/mdi/home.svg"
+            data-iconify="mdi:home"
             alt=""
           />
         </a>
       </div>
     </div>
 
+    <script src="iconify.js"></script>
+    <script>IconifyImages.load()</script>
     <script src="sheets.js"></script>
 
     <div id="LinkContainer"></div>
@@ -239,10 +241,8 @@
       const iconMarkupFor = (iconValue, label) => {
         const icon = String(iconValue ?? "").trim()
         if (!icon) return ""
-        const src = icon.includes(":")
-          ? `https://api.iconify.design/${encodeURIComponent(icon)}.svg`
-          : icon
-        return `<span class="icon-wrap" style="display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;"><img class="nav-icon" src="${esc(src)}" alt="" style="width:clamp(18px,6vw,32px);height:clamp(18px,6vw,32px);display:block;" /><span class="icon-label" style="font-size:10px;line-height:1;display:block;">${esc(label)}</span></span>`
+        const source = IconifyImages.isIconId(icon) ? `data-iconify="${esc(icon)}"` : `src="${esc(icon)}"`
+        return `<span class="icon-wrap" style="display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;"><img class="nav-icon" ${source} alt="" style="width:clamp(18px,6vw,32px);height:clamp(18px,6vw,32px);display:block;" /><span class="icon-label" style="font-size:10px;line-height:1;display:block;">${esc(label)}</span></span>`
       }
 
       const iconAnchorStyle =
@@ -571,6 +571,7 @@
         refreshSectionDropSlots()
         setDraggableState()
         syncSectionEditorUi()
+        IconifyImages.load(linksRoot)
       }
 
       const flushPendingChanges = async () => {
@@ -673,6 +674,7 @@
           anchor.style.cssText = iconAnchorStyle
           anchor.innerHTML = iconMarkup
           anchor.dataset.icon = icon
+          IconifyImages.load(anchor)
         } else {
           anchor.classList.remove("icon-only")
           anchor.style.cssText = ""
@@ -958,11 +960,11 @@
         }
         iconChoices.innerHTML = iconIds
           .map((iconId) => {
-            const src = `https://api.iconify.design/${encodeURIComponent(iconId)}.svg`
             const selected = iconId === editorState.pendingIcon
-            return `<button type="button" class="icon-choice${selected ? " selected" : ""}" data-icon="${esc(iconId)}" aria-pressed="${selected ? "true" : "false"}"><img src="${esc(src)}" alt="${esc(iconId)}" /><span>${esc(iconId)}</span></button>`
+            return `<button type="button" class="icon-choice${selected ? " selected" : ""}" data-icon="${esc(iconId)}" aria-pressed="${selected ? "true" : "false"}"><img data-iconify="${esc(iconId)}" alt="${esc(iconId)}" /><span>${esc(iconId)}</span></button>`
           })
           .join("")
+        IconifyImages.load(iconChoices)
       }
 
       const renderCuratedIcons = () => {
